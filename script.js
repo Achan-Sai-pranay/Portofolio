@@ -39,7 +39,7 @@ function typeRole() {
   setTimeout(typeRole, del ? 55 : 85);
 }
 // Start after content area animates in
-setTimeout(typeRole, 12000);
+setTimeout(typeRole, 10500);
 
 /* ============================================================
    SECTION NAVIGATION (content area)
