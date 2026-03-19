@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<title>Achan Sai Pranay — DevOps &amp; Cloud Engineer</title>
+</head>
+<body>
+
+<div class="portfolio-container">
+  <div class="phone-frame" id="phoneFrame">
+
+    <!-- Boot -->
+    <div class="boot-screen" id="bootScreen">
+      <div class="boot-logo"><img src="apple-logo.png" alt="Apple Logo"></div>
+    </div>
+
+    <!-- Lock Screen -->
+    <div class="lock-screen" id="lockScreen" onclick="unlockPhone()">
+      <div class="lock-time" id="lockTime">00:00</div>
+      <div class="lock-date" id="lockDate">Thursday, March 19</div>
+      <div class="lock-name">achan-sai-pranay.dev</div>
+      <div class="lock-swipe"><span class="swipe-icon">↑</span><span>swipe to unlock</span></div>
+    </div>
+
+    <!-- Home Screen -->
+    <div class="home-screen" id="homeScreen">
+      <div class="phone-notch">
+        <span class="phone-time-top" id="phoneTime">00:00</span>
+        <div class="notch-pill"></div>
+        <div class="status-icons"><span style="font-size:7px;letter-spacing:1px">●●●</span><span style="font-size:8px">🔋</span></div>
+      </div>
+      <div class="wallpaper-bg"></div>
+      <div class="app-grid">
+        <div class="app-row">
+          <div class="app-icon" onclick="openApp('github')">
+            <div class="app-icon-inner github-icon">
+              <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            </div>
+            <span class="app-label">GitHub</span>
+          </div>
+          <div class="app-icon" onclick="openApp('linkedin')">
+            <div class="app-icon-inner linkedin-icon">
+              <svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </div>
+            <span class="app-label">LinkedIn</span>
+          </div>
+          <div class="app-icon" onclick="openApp('email')">
+            <div class="app-icon-inner email-icon">
+              <svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            </div>
+            <span class="app-label">Email</span>
+          </div>
+          <div class="app-icon" onclick="openApp('ttt')">
+            <div class="app-icon-inner ttt-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="26" height="26"><line x1="8" y1="2" x2="8" y2="22"/><line x1="16" y1="2" x2="16" y2="22"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="2" y1="16" x2="22" y2="16"/></svg>
+            </div>
+            <span class="app-label">TicTacToe</span>
+          </div>
+        </div>
+        <div class="app-row">
+          <div class="app-icon" onclick="openApp('about')">
+            <div class="app-icon-inner about-icon">
+              <svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+            </div>
+            <span class="app-label">About</span>
+          </div>
+          <div class="app-icon" onclick="openApp('projects')">
+            <div class="app-icon-inner projects-icon">
+              <svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <span class="app-label">Projects</span>
+          </div>
+          <div class="app-icon" onclick="openApp('skills')">
+            <div class="app-icon-inner skills-icon">
+              <svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            </div>
+            <span class="app-label">Skills</span>
+          </div>
+          <div class="app-icon" onclick="openApp('contact')">
+            <div class="app-icon-inner contact-icon">
+              <svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/></svg>
+            </div>
+            <span class="app-label">Contact</span>
+          </div>
+        </div>
+      </div>
+      <!-- Dock -->
+      <div class="phone-dock">
+        <div class="app-icon small" onclick="openApp('github')"><div class="app-icon-inner github-icon"><svg viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></div></div>
+        <div class="app-icon small" onclick="openApp('linkedin')"><div class="app-icon-inner linkedin-icon"><svg viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div></div>
+        <div class="app-icon small" onclick="openApp('email')"><div class="app-icon-inner email-icon"><svg viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div></div>
+        <div class="app-icon small" onclick="openApp('ttt')"><div class="app-icon-inner ttt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="20" height="20"><line x1="8" y1="2" x2="8" y2="22"/><line x1="16" y1="2" x2="16" y2="22"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="2" y1="16" x2="22" y2="16"/></svg></div></div>
+      </div>
+    </div>
+
+    <!-- APP: GitHub -->
+    <div class="app-window" id="app-github">
+      <div class="app-header"><button class="app-back" onclick="closeApp('github')">←</button><span class="app-title">GitHub</span></div>
+      <div class="app-body github-app">
+        <div class="gh-avatar"><div class="gh-avatar-circle">ASP</div></div>
+        <div class="gh-username">@achansaipranay</div>
+        <div class="gh-bio">DevOps &amp; Cloud Engineer · MCET Hyderabad · CNCF Contributor</div>
+        <div class="gh-stats">
+          <div class="gh-stat"><span class="gh-num">4+</span><span class="gh-lbl">Repos</span></div>
+          <div class="gh-stat"><span class="gh-num">CNCF</span><span class="gh-lbl">Contrib</span></div>
+          <div class="gh-stat"><span class="gh-num">2026</span><span class="gh-lbl">Active</span></div>
+        </div>
+        <div class="gh-repos">
+          <div class="gh-repo-item"><span class="gh-repo-icon">📁</span><div><div class="gh-repo-name">neuro-reader</div><div class="gh-repo-desc">Chrome extension · Accessibility · Groq AI</div></div><span class="gh-repo-lang" style="background:#f7df1e;color:#000">JS</span></div>
+          <div class="gh-repo-item"><span class="gh-repo-icon">📁</span><div><div class="gh-repo-name">k8s-microservices</div><div class="gh-repo-desc">Kubernetes · Docker · Rolling Updates</div></div><span class="gh-repo-lang" style="background:#326ce5;color:#fff">YAML</span></div>
+          <div class="gh-repo-item"><span class="gh-repo-icon">📁</span><div><div class="gh-repo-name">secure-devops-pipeline</div><div class="gh-repo-desc">SonarQube · OWASP ZAP · CI/CD</div></div><span class="gh-repo-lang" style="background:#3572A5;color:#fff">PY</span></div>
+        </div>
+        <a href="https://github.com/achansaipranay" target="_blank" class="app-open-btn">Open GitHub ↗</a>
+      </div>
+    </div>
+
+    <!-- APP: LinkedIn -->
+    <div class="app-window" id="app-linkedin">
+      <div class="app-header linkedin-header"><button class="app-back" onclick="closeApp('linkedin')">←</button><span class="app-title">LinkedIn</span></div>
+      <div class="app-body linkedin-app">
+        <div class="li-cover"></div>
+        <div class="li-profile">
+          <div class="li-avatar">ASP</div>
+          <div class="li-info">
+            <div class="li-name">Achan Sai Pranay</div>
+            <div class="li-headline">DevOps &amp; Cloud Enthusiast | BE CSE @ MCET | CNCF Contributor</div>
+            <div class="li-location">📍 Hyderabad, Telangana, India</div>
+          </div>
+        </div>
+        <div class="li-section">
+          <div class="li-sec-title">Experience</div>
+          <div class="li-item">
+            <div class="li-item-title">DevOps Intern — Codtech IT Solutions</div>
+            <div class="li-item-sub">Mar 2026 – Apr 2026 · Hyderabad</div>
+            <div class="li-item-desc">CI/CD pipelines, Docker, Jenkins, GitHub Actions, cloud deployments</div>
+          </div>
+        </div>
+        <div class="li-section">
+          <div class="li-sec-title">Education</div>
+          <div class="li-item">
+            <div class="li-item-title">BE Computer Science</div>
+            <div class="li-item-sub">MCET Hyderabad · 2024–2028</div>
+          </div>
+        </div>
+        <div class="li-skills-chips">
+          <span class="li-chip">AWS</span><span class="li-chip">Docker</span><span class="li-chip">Kubernetes</span><span class="li-chip">Terraform</span><span class="li-chip">GitHub Actions</span><span class="li-chip">Linux</span>
+        </div>
+        <a href="https://linkedin.com/in/achansaipranay" target="_blank" class="app-open-btn li-btn">View LinkedIn ↗</a>
+      </div>
+    </div>
+
+    <!-- APP: Email -->
+    <div class="app-window" id="app-email">
+      <div class="app-header email-header"><button class="app-back" onclick="closeApp('email')">←</button><span class="app-title">Email</span></div>
+      <div class="app-body email-app">
+        <div class="email-compose-card">
+          <div class="email-to-row"><span class="email-label">To:</span><span class="email-value">achansaipranay3@gmail.com</span></div>
+          <div class="email-divider"></div>
+          <div class="email-to-row"><span class="email-label">Subject:</span><input id="emailSubject" class="email-input" placeholder="Opportunity / Collab"></div>
+          <div class="email-divider"></div>
+          <textarea id="emailBody" class="email-textarea" placeholder="Hi Achan Sai Pranay, I came across your portfolio..."></textarea>
+        </div>
+        <a href="#" class="app-open-btn email-send-btn" onclick="sendEmail(event)">Send Email ↗</a>
+        <div class="email-direct">
+          <div class="email-direct-label">Or copy directly:</div>
+          <div class="email-direct-link">achansaipranay3@gmail.com</div>
+          <div class="email-direct-label" style="margin-top:8px">Phone:</div>
+          <div class="email-direct-link">+91-8179154009</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP: Tic Tac Toe -->
+    <div class="app-window" id="app-ttt">
+      <div class="app-header ttt-header"><button class="app-back" onclick="closeApp('ttt')">←</button><span class="app-title">Tic Tac Toe</span></div>
+      <div class="app-body ttt-app">
+        <div class="ttt-status" id="tttStatus">Your turn — X</div>
+        <div class="ttt-board" id="tttBoard">
+          <div class="ttt-cell" onclick="tttMove(0)"></div><div class="ttt-cell" onclick="tttMove(1)"></div><div class="ttt-cell" onclick="tttMove(2)"></div>
+          <div class="ttt-cell" onclick="tttMove(3)"></div><div class="ttt-cell" onclick="tttMove(4)"></div><div class="ttt-cell" onclick="tttMove(5)"></div>
+          <div class="ttt-cell" onclick="tttMove(6)"></div><div class="ttt-cell" onclick="tttMove(7)"></div><div class="ttt-cell" onclick="tttMove(8)"></div>
+        </div>
+        <div class="ttt-score">
+          <div class="score-box"><span class="score-val" id="scoreX">0</span><span class="score-lbl">You (X)</span></div>
+          <div class="score-box"><span class="score-val" id="scoreDraw">0</span><span class="score-lbl">Draw</span></div>
+          <div class="score-box"><span class="score-val" id="scoreO">0</span><span class="score-lbl">CPU (O)</span></div>
+        </div>
+        <button class="ttt-reset" onclick="tttReset()">New Game</button>
+        <div class="ttt-mode">
+          <button class="mode-btn active" id="modeEasy" onclick="setMode('easy')">Easy</button>
+          <button class="mode-btn" id="modeHard" onclick="setMode('hard')">Hard AI</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP: About -->
+    <div class="app-window" id="app-about">
+      <div class="app-header about-header"><button class="app-back" onclick="closeApp('about')">←</button><span class="app-title">About Me</span></div>
+      <div class="app-body about-app">
+        <div class="about-hero"><div class="about-avatar">ASP</div><div class="about-name">Achan Sai Pranay</div><div class="about-role">DevOps &amp; Cloud Engineer</div></div>
+        <div class="about-card">
+          <p>BE Computer Science at <strong>Methodist College of Engineering &amp; Technology, Hyderabad</strong> (2024–2028), specializing in DevOps &amp; Cloud.</p>
+          <p>Interned at <strong>Codtech IT Solutions</strong> — built CI/CD pipelines, containerized apps, K8s deployments. Active <strong>CNCF contributor</strong> to Kubernetes docs.</p>
+        </div>
+        <div class="about-badges">
+          <span class="badge cyan">AWS</span><span class="badge purple">Kubernetes</span><span class="badge green">Terraform</span><span class="badge cyan">Docker</span><span class="badge purple">GitHub Actions</span><span class="badge green">CNCF</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP: Projects -->
+    <div class="app-window" id="app-projects">
+      <div class="app-header projects-header"><button class="app-back" onclick="closeApp('projects')">←</button><span class="app-title">Projects</span></div>
+      <div class="app-body projects-app">
+        <div class="proj-card featured"><div class="proj-tag cyan">Hackathon · Mar 2026</div><div class="proj-name">Neuro Reader</div><div class="proj-desc">Chrome extension for ADHD &amp; dyslexia. Focus Mode, Dyslexia font, Read Aloud, AI summarization via Groq. Hack for Infinity 2K26 @ Osmania University.</div><div class="proj-stack"><span>Chrome API</span><span>Groq AI</span><span>JavaScript</span></div></div>
+        <div class="proj-card"><div class="proj-tag purple">DevSecOps · Apr 2026</div><div class="proj-name">Secure DevOps Pipeline</div><div class="proj-desc">SonarQube &amp; OWASP ZAP integrated into CI/CD. Automated vulnerability reports.</div><div class="proj-stack"><span>SonarQube</span><span>OWASP ZAP</span><span>Jenkins</span></div></div>
+        <div class="proj-card"><div class="proj-tag green">Cloud · Apr 2026</div><div class="proj-name">K8s Microservices Deploy</div><div class="proj-desc">Docker containers deployed to Kubernetes with Deployments, Services &amp; rolling updates.</div><div class="proj-stack"><span>Kubernetes</span><span>Docker</span><span>YAML</span></div></div>
+        <div class="proj-card"><div class="proj-tag cyan">CI/CD · Mar 2026</div><div class="proj-name">Automated CI/CD Pipeline</div><div class="proj-desc">Jenkins + GitHub Actions pipeline with Docker automation &amp; webhook triggers.</div><div class="proj-stack"><span>Jenkins</span><span>GitHub Actions</span><span>Docker</span></div></div>
+      </div>
+    </div>
+
+    <!-- APP: Skills -->
+    <div class="app-window" id="app-skills">
+      <div class="app-header skills-header"><button class="app-back" onclick="closeApp('skills')">←</button><span class="app-title">Skills</span></div>
+      <div class="app-body skills-app">
+        <div class="skill-group"><div class="skill-group-title">Cloud &amp; DevOps</div>
+          <div class="skill-bar-row"><span>AWS</span><div class="mini-bar"><div class="mini-fill" style="--w:85%"></div></div></div>
+          <div class="skill-bar-row"><span>Docker</span><div class="mini-bar"><div class="mini-fill" style="--w:90%"></div></div></div>
+          <div class="skill-bar-row"><span>Kubernetes</span><div class="mini-bar"><div class="mini-fill" style="--w:80%"></div></div></div>
+          <div class="skill-bar-row"><span>Terraform</span><div class="mini-bar"><div class="mini-fill" style="--w:75%"></div></div></div>
+          <div class="skill-bar-row"><span>GitHub Actions</span><div class="mini-bar"><div class="mini-fill" style="--w:88%"></div></div></div>
+        </div>
+        <div class="skill-group"><div class="skill-group-title">Programming</div><div class="skill-chips"><span>Python</span><span>Bash</span><span>YAML</span><span>JSON</span><span>Go (basics)</span><span>C/C++</span></div></div>
+        <div class="skill-group"><div class="skill-group-title">Currently Learning</div><div class="skill-chips learning"><span>CKA Prep</span><span>AWS SAA</span><span>CNCF</span><span>K8s Operators</span></div></div>
+      </div>
+    </div>
+
+    <!-- APP: Contact -->
+    <div class="app-window" id="app-contact">
+      <div class="app-header contact-header"><button class="app-back" onclick="closeApp('contact')">←</button><span class="app-title">Contact</span></div>
+      <div class="app-body contact-app">
+        <div class="contact-greeting">Let's build something together.</div>
+        <div class="contact-cards">
+          <a href="mailto:achansaipranay3@gmail.com" class="contact-card"><div class="cc-icon">✉</div><div><div class="cc-label">Email</div><div class="cc-value">achansaipranay3@gmail.com</div></div></a>
+          <a href="https://linkedin.com/in/achansaipranay" target="_blank" class="contact-card"><div class="cc-icon" style="background:linear-gradient(135deg,#0077b5,#00a0dc)">in</div><div><div class="cc-label">LinkedIn</div><div class="cc-value">achansaipranay</div></div></a>
+          <a href="https://github.com/achansaipranay" target="_blank" class="contact-card"><div class="cc-icon" style="background:linear-gradient(135deg,#24292e,#3d444d)">⌥</div><div><div class="cc-label">GitHub</div><div class="cc-value">achansaipranay</div></div></a>
+          <div class="contact-card no-link"><div class="cc-icon" style="background:linear-gradient(135deg,#10b981,#059669)">📍</div><div><div class="cc-label">Location</div><div class="cc-value">Hyderabad, India</div></div></div>
+        </div>
+        <div class="contact-status"><span class="status-dot"></span> Open to Opportunities</div>
+      </div>
+    </div>
+
+  </div><!-- /phone-frame -->
+
+  <!-- Content Area -->
+  <div class="content-area" id="contentArea">
+    <nav class="top-nav">
+      <div class="nav-logo"><span class="nav-bracket">[</span><span class="nav-name">achan_sai_pranay</span><span class="nav-bracket">]</span></div>
+      <div class="nav-links">
+        <a href="#" class="nav-link active" data-section="about">about</a>
+        <a href="#" class="nav-link" data-section="projects">projects</a>
+        <a href="#" class="nav-link" data-section="skills">skills</a>
+        <a href="#" class="nav-link" data-section="contact">contact</a>
+      </div>
+    </nav>
+
+    <section class="section active-section" id="about">
+      <div class="section-inner">
+        <div class="hero-eyebrow"><span class="mono-tag">&lt;hello world /&gt;</span></div>
+        <h1 class="hero-name">
+          <span class="name-line name-small">ACHAN SAI</span>
+          <span class="name-line accent">PRANAY</span>
+        </h1>
+        <div class="hero-role"><span class="role-prefix">$ </span><span id="roleText" class="role-typing"></span><span class="cursor-blink">█</span></div>
+        <p class="hero-bio">BE Computer Science student at <strong>Methodist College of Engineering &amp; Technology, Hyderabad</strong> (2024–2028). DevOps Intern at <strong>Codtech IT Solutions</strong>. CNCF contributor. Hackathon builder.</p>
+        <div class="hero-badges">
+          <span class="badge cyan">AWS</span><span class="badge purple">Kubernetes</span><span class="badge green">Terraform</span><span class="badge cyan">Docker</span><span class="badge purple">CNCF Contributor</span><span class="badge green">Hack for Infinity 2K26</span>
+        </div>
+        <div class="hero-ctas">
+          <button class="btn-primary cta-nav" data-target="projects">View Projects</button>
+          <button class="btn-outline cta-nav" data-target="contact">Get in Touch</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="projects">
+      <div class="section-inner">
+        <div class="section-heading"><span class="mono-tag">_projects</span></div>
+        <div class="projects-grid">
+          <div class="proj-card-big featured-card"><div class="card-tag cyan">HACKATHON · MAR 2026</div><h3>Neuro Reader</h3><p>Chrome extension for ADHD &amp; dyslexia users. Focus Mode, Dyslexia font, Bionic Reading, Read Aloud, AI summarization via <strong>Groq llama-3.1-8b-instant</strong>. Built at Hack for Infinity 2K26 at Osmania University.</p><div class="card-stack"><span>Chrome API</span><span>Groq AI</span><span>JavaScript</span><span>Service Worker</span></div></div>
+          <div class="proj-card-big"><div class="card-tag purple">DEVSECOPS · APR 2026</div><h3>Secure DevOps Pipeline</h3><p>SonarQube &amp; OWASP ZAP integrated into CI/CD. Automated vulnerability reports, improved security posture.</p><div class="card-stack"><span>SonarQube</span><span>OWASP ZAP</span><span>Jenkins</span><span>GitHub Actions</span></div></div>
+          <div class="proj-card-big"><div class="card-tag green">CLOUD · APR 2026</div><h3>K8s Microservices</h3><p>Containerized apps deployed to Kubernetes with Deployments, Services, rolling updates and health checks.</p><div class="card-stack"><span>Kubernetes</span><span>Docker</span><span>YAML</span><span>Helm</span></div></div>
+          <div class="proj-card-big"><div class="card-tag cyan">CI/CD · MAR 2026</div><h3>Automated CI/CD Pipeline</h3><p>Jenkins + GitHub Actions pipeline with Docker build/deploy automation and GitHub webhook integration.</p><div class="card-stack"><span>Jenkins</span><span>GitHub Actions</span><span>Docker</span><span>Webhooks</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="skills">
+      <div class="section-inner">
+        <div class="section-heading"><span class="mono-tag">_skills</span></div>
+        <div class="skills-grid">
+          <div class="skill-block"><div class="skill-block-title">Cloud &amp; DevOps</div>
+            <div class="bar-item"><span>AWS</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.05s"></div></div><span class="bar-pct">85%</span></div>
+            <div class="bar-item"><span>Docker</span><div class="bar-track"><div class="bar-fill" style="--w:90%;--delay:.12s"></div></div><span class="bar-pct">90%</span></div>
+            <div class="bar-item"><span>Kubernetes</span><div class="bar-track"><div class="bar-fill" style="--w:80%;--delay:.19s"></div></div><span class="bar-pct">80%</span></div>
+            <div class="bar-item"><span>Terraform</span><div class="bar-track"><div class="bar-fill" style="--w:75%;--delay:.26s"></div></div><span class="bar-pct">75%</span></div>
+            <div class="bar-item"><span>GitHub Actions</span><div class="bar-track"><div class="bar-fill" style="--w:88%;--delay:.33s"></div></div><span class="bar-pct">88%</span></div>
+            <div class="bar-item"><span>Linux / Bash</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.40s"></div></div><span class="bar-pct">85%</span></div>
+          </div>
+          <div class="skill-block"><div class="skill-block-title">Programming</div>
+            <div class="bar-item"><span>Python</span><div class="bar-track"><div class="bar-fill" style="--w:80%;--delay:.05s"></div></div><span class="bar-pct">80%</span></div>
+            <div class="bar-item"><span>Bash / Shell</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.12s"></div></div><span class="bar-pct">85%</span></div>
+            <div class="bar-item"><span>YAML / JSON</span><div class="bar-track"><div class="bar-fill" style="--w:92%;--delay:.19s"></div></div><span class="bar-pct">92%</span></div>
+            <div class="bar-item"><span>C / C++</span><div class="bar-track"><div class="bar-fill" style="--w:65%;--delay:.26s"></div></div><span class="bar-pct">65%</span></div>
+            <div class="bar-item"><span>Go (basics)</span><div class="bar-track"><div class="bar-fill" style="--w:40%;--delay:.33s"></div></div><span class="bar-pct">40%</span></div>
+          </div>
+          <div class="skill-block full-width"><div class="skill-block-title">Tools &amp; Monitoring</div>
+            <div class="chip-row"><span class="chip">Git</span><span class="chip">Jenkins</span><span class="chip">Ansible</span><span class="chip">Helm</span><span class="chip">Prometheus</span><span class="chip">Grafana</span><span class="chip">ELK Stack</span><span class="chip">nginx</span></div>
+          </div>
+          <div class="skill-block full-width"><div class="skill-block-title">Currently Learning</div>
+            <div class="chip-row"><span class="chip green-chip">CKA Prep</span><span class="chip green-chip">AWS SAA</span><span class="chip green-chip">CNCF Contributions</span><span class="chip green-chip">K8s Operators</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="section-inner">
+        <div class="section-heading"><span class="mono-tag">_contact</span></div>
+        <div class="contact-layout">
+          <div class="contact-cards-grid">
+            <a href="mailto:achansaipranay3@gmail.com" class="ccard"><div class="ccard-icon">✉</div><div class="ccard-label">Email</div><div class="ccard-val">achansaipranay3@gmail.com</div></a>
+            <a href="https://github.com/achansaipranay" target="_blank" class="ccard"><div class="ccard-icon">⌥</div><div class="ccard-label">GitHub</div><div class="ccard-val">github.com/achansaipranay</div></a>
+            <a href="https://linkedin.com/in/achansaipranay" target="_blank" class="ccard"><div class="ccard-icon">in</div><div class="ccard-label">LinkedIn</div><div class="ccard-val">linkedin.com/in/achansaipranay</div></a>
+            <div class="ccard no-link"><div class="ccard-icon">📍</div><div class="ccard-label">Location</div><div class="ccard-val">Hyderabad, Telangana, India</div></div>
+          </div>
+          <div class="terminal-block">
+            <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-label">bash</span></div>
+            <div class="term-line"><span class="term-prompt">achan-sai-pranay@mcet:~$</span> <span class="term-cmd">whoami</span></div>
+            <div class="term-line term-out">Achan Sai Pranay · DevOps Engineer · CNCF Contributor</div>
+            <div class="term-line"><span class="term-prompt">achan-sai-pranay@mcet:~$</span> <span class="term-cmd">cat goals.txt</span></div>
+            <div class="term-line term-out">→ Land a DevOps/Cloud role at Microsoft or Google Hyderabad</div>
+            <div class="term-line term-out">→ Earn CKA + AWS SAA certifications</div>
+            <div class="term-line term-out">→ Contribute more to CNCF open-source</div>
+            <div class="term-line"><span class="term-prompt">achan-sai-pranay@mcet:~$</span> <span class="term-cmd">echo $STATUS</span></div>
+            <div class="term-line term-out status-open">OPEN TO OPPORTUNITIES ✓</div>
+            <div class="term-line"><span class="term-prompt">achan-sai-pranay@mcet:~$</span> <span class="cursor-blink2">█</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
