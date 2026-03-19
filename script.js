@@ -1,322 +1,261 @@
-/* ============================================================
-   FLOATING PARTICLES
-   ============================================================ */
-(function initParticles() {
+/* ─────────────────────────────
+   PARTICLES
+───────────────────────────── */
+(function() {
   const canvas = document.getElementById('particleCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
+  let W, H;
 
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
+  const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
   resize();
   window.addEventListener('resize', resize);
 
-  const COLORS = ['rgba(0,212,255,', 'rgba(124,58,237,', 'rgba(16,185,129,'];
+  const COLS = ['rgba(0,212,255,', 'rgba(124,58,237,', 'rgba(16,185,129,'];
+  const pts = Array.from({length: 80}, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.5 + 0.4,
+    vy: -(Math.random() * 0.25 + 0.07),
+    vx: (Math.random() - 0.5) * 0.2,
+    op: Math.random() * 0.4 + 0.08,
+    pp: Math.random() * Math.PI * 2,
+    ps: Math.random() * 0.018 + 0.006,
+    color: COLS[Math.floor(Math.random() * COLS.length)]
+  }));
 
-  function makeParticle() {
-    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    return {
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 1.6 + 0.4,
-      a: Math.random() * Math.PI * 2,
-      speed: Math.random() * 0.3 + 0.08,
-      drift: (Math.random() - 0.5) * 0.3,
-      opacity: Math.random() * 0.45 + 0.08,
-      pulseSpeed: Math.random() * 0.02 + 0.005,
-      pulsePhase: Math.random() * Math.PI * 2,
-      color
-    };
-  }
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t++;
 
-  for (let i = 0; i < 90; i++) particles.push(makeParticle());
-
-  // Occasional line connections
-  function drawLines() {
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 100) {
+    // Lines between close particles
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 110) {
           ctx.beginPath();
-          ctx.strokeStyle = `rgba(0,212,255,${0.04 * (1 - dist / 100)})`;
+          ctx.strokeStyle = `rgba(0,212,255,${0.035*(1 - d/110)})`;
           ctx.lineWidth = 0.5;
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[j].x, pts[j].y);
           ctx.stroke();
         }
       }
     }
-  }
 
-  let tick = 0;
-  function animate() {
-    ctx.clearRect(0, 0, W, H);
-    tick++;
-
-    drawLines();
-
-    particles.forEach(p => {
-      // Pulse opacity
-      const pulse = Math.sin(tick * p.pulseSpeed + p.pulsePhase) * 0.2 + 0.8;
-
+    pts.forEach(p => {
+      const pulse = Math.sin(t * p.ps + p.pp) * 0.22 + 0.78;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.color + (p.opacity * pulse) + ')';
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = p.color + (p.op * pulse) + ')';
       ctx.fill();
-
-      // Move
-      p.y -= p.speed;
-      p.x += p.drift;
-
-      // Wrap
-      if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
-      if (p.x < -5) p.x = W + 5;
-      if (p.x > W + 5) p.x = -5;
+      p.y += p.vy; p.x += p.vx;
+      if (p.y < -6) { p.y = H + 6; p.x = Math.random() * W; }
+      if (p.x < -6) p.x = W + 6;
+      if (p.x > W + 6) p.x = -6;
     });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 
+/* ─────────────────────────────
+   3D TILT on mouse move
+───────────────────────────── */
+(function() {
+  const wrapper = document.getElementById('phoneWrapper');
+  if (!wrapper) return;
+
+  let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
+  let isSlid = false;
+
+  // After slide animation finishes, enable tilt
+  setTimeout(() => { isSlid = true; }, 6000);
+
+  document.addEventListener('mousemove', e => {
+    if (!isSlid) return;
+    const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+    targetY = ((e.clientX - cx) / cx) * 10;   // rotateY
+    targetX = -((e.clientY - cy) / cy) * 7;  // rotateX
+  });
+
+  document.addEventListener('mouseleave', () => { targetX = 0; targetY = 0; });
+
+  function animate() {
+    if (isSlid) {
+      currentX += (targetX - currentX) * 0.06;
+      currentY += (targetY - currentY) * 0.06;
+      wrapper.style.transform = `translateX(-34vw) rotateX(${currentX}deg) rotateY(${currentY + 8}deg)`;
+    }
     requestAnimationFrame(animate);
   }
   animate();
 })();
 
-/* ============================================================
+/* ─────────────────────────────
    CLOCK
-   ============================================================ */
+───────────────────────────── */
 function updateClock() {
-  const now  = new Date();
-  const h    = now.getHours().toString().padStart(2, '0');
-  const m    = now.getMinutes().toString().padStart(2, '0');
-  const str  = `${h}:${m}`;
-  const tel  = document.getElementById('phoneTime');
-  const lel  = document.getElementById('lockTime');
-  const del2 = document.getElementById('lockDate');
-  if (tel) tel.textContent = str;
-  if (lel) lel.textContent = str;
-  if (del2) {
-    const opts = { weekday: 'long', day: 'numeric', month: 'long' };
-    del2.textContent = now.toLocaleDateString('en-GB', opts);
-  }
+  const now = new Date();
+  const hh  = now.getHours().toString().padStart(2,'0');
+  const mm  = now.getMinutes().toString().padStart(2,'0');
+  const str = `${hh}:${mm}`;
+  ['phoneTime','lockTime'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = str;
+  });
+  const ltb = document.getElementById('lockTimeBig');
+  if (ltb) ltb.textContent = str;
+  const ld = document.getElementById('lockDate');
+  if (ld) ld.textContent = now.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
 }
 updateClock();
 setInterval(updateClock, 15000);
 
-/* ============================================================
-   PHONE UNLOCK
-   ============================================================ */
-function unlockPhone() {
-  const lock = document.getElementById('lockScreen') || document.querySelector('.lock-screen');
-  if (lock) {
-    lock.style.transition = 'transform 0.45s cubic-bezier(.4,0,.2,1)';
-    lock.style.transform  = 'translateY(-110%)';
-    lock.style.pointerEvents = 'none';
-  }
-}
+/* ─────────────────────────────
+   UNLOCK PHONE
+───────────────────────────── */
+window.unlockPhone = function() {
+  const lock = document.getElementById('lockScreen');
+  if (!lock) return;
+  lock.style.transition = 'transform 0.5s cubic-bezier(.4,0,.2,1), opacity 0.5s';
+  lock.style.transform  = 'translateY(-108%)';
+  lock.style.opacity    = '0';
+  lock.style.pointerEvents = 'none';
+};
 
-/* ============================================================
+// Tap zone
+setTimeout(() => {
+  const tz = document.getElementById('lockTapZone');
+  if (tz) tz.addEventListener('click', unlockPhone);
+}, 5000);
+
+/* ─────────────────────────────
    TYPEWRITER
-   ============================================================ */
-const roles = [
-  'DevOps Engineer',
-  'Cloud Enthusiast',
-  'Hackathon Builder',
-  'CNCF Contributor',
-  'Problem Solver'
-];
-let rIdx = 0, cIdx = 0, deleting = false;
+───────────────────────────── */
+const roles = ['DevOps Engineer','Cloud Enthusiast','Hackathon Builder','CNCF Contributor','Problem Solver'];
+let ri = 0, ci = 0, del = false;
 const roleEl = document.getElementById('roleText');
-
 function typeRole() {
   if (!roleEl) return;
-  const cur = roles[rIdx];
-  if (!deleting) {
-    roleEl.textContent = cur.slice(0, ++cIdx);
-    if (cIdx === cur.length) { deleting = true; setTimeout(typeRole, 2200); return; }
+  const cur = roles[ri];
+  if (!del) {
+    roleEl.textContent = cur.slice(0, ++ci);
+    if (ci === cur.length) { del = true; setTimeout(typeRole, 2200); return; }
   } else {
-    roleEl.textContent = cur.slice(0, --cIdx);
-    if (cIdx === 0) { deleting = false; rIdx = (rIdx + 1) % roles.length; }
+    roleEl.textContent = cur.slice(0, --ci);
+    if (ci === 0) { del = false; ri = (ri + 1) % roles.length; }
   }
-  setTimeout(typeRole, deleting ? 52 : 82);
+  setTimeout(typeRole, del ? 52 : 82);
 }
-// Start after content area comes in
-setTimeout(typeRole, 9500);
+setTimeout(typeRole, 9200);
 
-/* ============================================================
-   SECTION NAVIGATION
-   ============================================================ */
-const navLinks    = document.querySelectorAll('.nav-link');
-const sections    = document.querySelectorAll('.section');
-const ctaBtns     = document.querySelectorAll('.cta-nav');
-const sectionOrder = ['about', 'projects', 'skills', 'contact'];
+/* ─────────────────────────────
+   SECTION NAV
+───────────────────────────── */
+const navLinks     = document.querySelectorAll('.nav-link');
+const sections     = document.querySelectorAll('.section');
+const ctaBtns      = document.querySelectorAll('.cta-nav');
+const secOrder     = ['about','projects','skills','contact'];
 
 function showSection(id) {
   sections.forEach(s => s.classList.toggle('active-section', s.id === id));
   navLinks.forEach(l => l.classList.toggle('active', l.dataset.section === id));
   if (id === 'skills') reanimateBars();
 }
-
 navLinks.forEach(l => l.addEventListener('click', e => { e.preventDefault(); showSection(l.dataset.section); }));
 ctaBtns.forEach(b => b.addEventListener('click', e => { e.preventDefault(); showSection(b.dataset.target); }));
-
 document.addEventListener('keydown', e => {
   const active = [...sections].find(s => s.classList.contains('active-section'));
   if (!active) return;
-  const i = sectionOrder.indexOf(active.id);
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') showSection(sectionOrder[(i + 1) % 4]);
-  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   showSection(sectionOrder[(i - 1 + 4) % 4]);
+  const i = secOrder.indexOf(active.id);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') showSection(secOrder[(i+1)%4]);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   showSection(secOrder[(i-1+4)%4]);
 });
-
 function reanimateBars() {
-  document.querySelectorAll('.bar-fill').forEach((b, i) => {
-    b.style.animation = 'none';
-    b.offsetWidth; // reflow
-    b.style.setProperty('--delay', `${i * 0.07}s`);
+  document.querySelectorAll('.bar-fill').forEach((b,i) => {
+    b.style.animation = 'none'; b.offsetWidth;
+    b.style.setProperty('--delay', `${i*0.07}s`);
     b.style.animation = '';
   });
 }
 
-/* ============================================================
+/* ─────────────────────────────
    APP OPEN / CLOSE
-   ============================================================ */
-function openApp(id) {
+───────────────────────────── */
+window.openApp = function(id) {
   const w = document.getElementById('app-' + id);
   if (w) { w.classList.add('open'); }
-}
-function closeApp(id) {
+};
+window.closeApp = function(id) {
   const w = document.getElementById('app-' + id);
   if (w) { w.classList.remove('open'); }
-}
-
-function sendEmail(e) {
+};
+window.sendEmail = function(e) {
   e.preventDefault();
-  const sub  = document.getElementById('emailSubject')?.value || 'Hello from your portfolio';
-  const body = document.getElementById('emailBody')?.value || '';
-  window.open(`mailto:achansaipranay3@gmail.com?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`, '_blank');
-}
+  const s = document.getElementById('emailSubject')?.value || 'Hello from your portfolio';
+  const b = document.getElementById('emailBody')?.value || '';
+  window.open(`mailto:achansaipranay3@gmail.com?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(b)}`, '_blank');
+};
 
-/* ============================================================
+/* ─────────────────────────────
    TIC TAC TOE
-   ============================================================ */
-let board = Array(9).fill(null);
-let scores = { X: 0, O: 0, Draw: 0 };
-let gameOver = false;
-let aiMode = 'easy';
-const WIN_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+───────────────────────────── */
+let board = Array(9).fill(null), scores = {X:0,O:0,Draw:0}, gameOver = false, aiMode = 'easy';
+const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
-function setMode(mode) {
+window.setMode = function(mode) {
   aiMode = mode;
-  document.getElementById('modeEasy').classList.toggle('active', mode === 'easy');
-  document.getElementById('modeHard').classList.toggle('active', mode === 'hard');
+  document.getElementById('modeEasy').classList.toggle('active', mode==='easy');
+  document.getElementById('modeHard').classList.toggle('active', mode==='hard');
   tttReset();
-}
-
-function tttMove(idx) {
-  if (board[idx] || gameOver) return;
-  board[idx] = 'X';
-  renderBoard();
-  const r = checkResult();
-  if (r) { endGame(r); return; }
+};
+window.tttMove = function(i) {
+  if (board[i] || gameOver) return;
+  board[i] = 'X'; renderBoard();
+  const r = checkWin(); if (r) { endGame(r); return; }
   document.getElementById('tttStatus').textContent = 'CPU thinking…';
   setTimeout(() => {
     const ai = aiMode === 'hard' ? bestMove() : easyMove();
-    if (ai !== -1) {
-      board[ai] = 'O';
-      renderBoard();
-      const r2 = checkResult();
-      if (r2) endGame(r2);
-      else document.getElementById('tttStatus').textContent = 'Your turn — X';
-    }
-  }, 320);
+    if (ai !== -1) { board[ai] = 'O'; renderBoard(); const r2 = checkWin(); if (r2) endGame(r2); else document.getElementById('tttStatus').textContent = 'Your turn — X'; }
+  }, 300);
+};
+function easyMove() { const e = board.map((v,i)=>v?null:i).filter(v=>v!==null); return e.length ? e[Math.floor(Math.random()*e.length)] : -1; }
+function bestMove() { let b=-Infinity,m=-1; for(let i=0;i<9;i++){if(!board[i]){board[i]='O';const s=mm(board,false,-Infinity,Infinity);board[i]=null;if(s>b){b=s;m=i;}}} return m; }
+function mm(b,max,a,be) {
+  const r=checkWin(b); if(r==='O')return 10; if(r==='X')return -10; if(r==='Draw')return 0;
+  if(max){let bst=-Infinity;for(let i=0;i<9;i++){if(!b[i]){b[i]='O';bst=Math.max(bst,mm(b,false,a,be));b[i]=null;a=Math.max(a,bst);if(be<=a)break;}}return bst;}
+  else{let bst=Infinity;for(let i=0;i<9;i++){if(!b[i]){b[i]='X';bst=Math.min(bst,mm(b,true,a,be));b[i]=null;be=Math.min(be,bst);if(be<=a)break;}}return bst;}
 }
-
-function easyMove() {
-  const empty = board.map((v, i) => v ? null : i).filter(v => v !== null);
-  return empty.length ? empty[Math.floor(Math.random() * empty.length)] : -1;
+function checkWin(b) {
+  b=b||board;
+  for(const [a,c,d] of WINS) if(b[a]&&b[a]===b[c]&&b[a]===b[d]) return b[a];
+  if(b.every(v=>v)) return 'Draw'; return null;
 }
-
-function bestMove() {
-  let best = -Infinity, move = -1;
-  for (let i = 0; i < 9; i++) {
-    if (!board[i]) {
-      board[i] = 'O';
-      const s = minimax(board, false, -Infinity, Infinity);
-      board[i] = null;
-      if (s > best) { best = s; move = i; }
-    }
-  }
-  return move;
+function getWinLine() { for(const l of WINS){const[a,c,d]=l;if(board[a]&&board[a]===board[c]&&board[a]===board[d])return l;} return null; }
+function renderBoard() { document.querySelectorAll('.ttt-cell').forEach((c,i)=>{c.textContent=board[i]||'';c.className='ttt-cell';if(board[i])c.classList.add(board[i].toLowerCase());}); }
+function endGame(r) {
+  gameOver=true; const wl=getWinLine(); const cells=document.querySelectorAll('.ttt-cell'); const st=document.getElementById('tttStatus');
+  if(r==='Draw'){scores.Draw++;st.textContent="Draw! 🤝";}
+  else{if(wl)wl.forEach(i=>cells[i].classList.add('win'));if(r==='X'){scores.X++;st.textContent="You win! 🎉";}else{scores.O++;st.textContent="CPU wins! 🤖";}}
+  document.getElementById('scoreX').textContent=scores.X;
+  document.getElementById('scoreO').textContent=scores.O;
+  document.getElementById('scoreDraw').textContent=scores.Draw;
 }
+window.tttReset = function() { board=Array(9).fill(null);gameOver=false;renderBoard();document.getElementById('tttStatus').textContent='Your turn — X'; };
 
-function minimax(b, isMax, alpha, beta) {
-  const r = checkResult(b);
-  if (r === 'O') return 10;
-  if (r === 'X') return -10;
-  if (r === 'Draw') return 0;
-  if (isMax) {
-    let best = -Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!b[i]) { b[i] = 'O'; best = Math.max(best, minimax(b, false, alpha, beta)); b[i] = null; alpha = Math.max(alpha, best); if (beta <= alpha) break; }
-    }
-    return best;
-  } else {
-    let best = Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!b[i]) { b[i] = 'X'; best = Math.min(best, minimax(b, true, alpha, beta)); b[i] = null; beta = Math.min(beta, best); if (beta <= alpha) break; }
-    }
-    return best;
-  }
-}
-
-function checkResult(b) {
-  b = b || board;
-  for (const [a, c, d] of WIN_LINES) {
-    if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
-  }
-  if (b.every(v => v)) return 'Draw';
-  return null;
-}
-
-function getWinLine() {
-  for (const line of WIN_LINES) {
-    const [a, c, d] = line;
-    if (board[a] && board[a] === board[c] && board[a] === board[d]) return line;
-  }
-  return null;
-}
-
-function renderBoard() {
-  document.querySelectorAll('.ttt-cell').forEach((cell, i) => {
-    cell.textContent = board[i] || '';
-    cell.className = 'ttt-cell';
-    if (board[i]) cell.classList.add(board[i].toLowerCase());
+/* ─────────────────────────────
+   ICON PRESS EFFECT (iOS bounce)
+───────────────────────────── */
+document.querySelectorAll('.ios-app').forEach(app => {
+  app.addEventListener('pointerdown', () => {
+    const icon = app.querySelector('.ios-icon');
+    if (icon) { icon.style.transform = 'scale(0.86)'; icon.style.transition = 'transform 0.1s ease'; }
   });
-}
-
-function endGame(result) {
-  gameOver = true;
-  const winLine = getWinLine();
-  const cells = document.querySelectorAll('.ttt-cell');
-  const statusEl = document.getElementById('tttStatus');
-  if (result === 'Draw') {
-    scores.Draw++;
-    statusEl.textContent = "It's a draw! 🤝";
-  } else {
-    if (winLine) winLine.forEach(i => cells[i].classList.add('win'));
-    if (result === 'X') { scores.X++;  statusEl.textContent = 'You win! 🎉'; }
-    else                { scores.O++;  statusEl.textContent = 'CPU wins! 🤖'; }
-  }
-  document.getElementById('scoreX').textContent    = scores.X;
-  document.getElementById('scoreO').textContent    = scores.O;
-  document.getElementById('scoreDraw').textContent = scores.Draw;
-}
-
-function tttReset() {
-  board = Array(9).fill(null);
-  gameOver = false;
-  renderBoard();
-  document.getElementById('tttStatus').textContent = 'Your turn — X';
-}
+  app.addEventListener('pointerup', () => {
+    const icon = app.querySelector('.ios-icon');
+    if (icon) { icon.style.transform = 'scale(1)'; icon.style.transition = 'transform 0.25s cubic-bezier(.34,1.56,.64,1)'; }
+  });
+});
