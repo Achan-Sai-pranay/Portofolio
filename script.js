@@ -1,4 +1,433 @@
 /* ═══════════════════════════════════════════════════
+   NEW-1. MOUSE GRAVITY WELL
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  const GRAVITY_R  = 140;  // attraction radius px
+  const STRENGTH   = 0.22; // pull force
+
+  let mx = -9999, my = -9999;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive:true });
+
+  function tick() {
+    const pts = window._pts;
+    if (!pts) { requestAnimationFrame(tick); return; }
+    pts.forEach(p => {
+      const dx = mx - p.x, dy = my - p.y;
+      const d2 = dx*dx + dy*dy;
+      if (d2 < GRAVITY_R * GRAVITY_R) {
+        const d    = Math.sqrt(d2);
+        const pull = (1 - d / GRAVITY_R) * STRENGTH;
+        p.gx += dx * pull * 0.06;
+        p.gy += dy * pull * 0.06;
+      }
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-2. PARTICLE EXPLOSION ON CLICK
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  // Draw burst particles on a dedicated canvas
+  const c = document.createElement('canvas');
+  c.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:6;';
+  document.body.appendChild(c);
+  const ctx = c.getContext('2d');
+  let W = c.width = window.innerWidth, H = c.height = window.innerHeight;
+  window.addEventListener('resize', () => { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }, { passive:true });
+
+  const bursts = [];
+  const COLS   = ['rgba(0,212,255,','rgba(124,58,237,','rgba(16,185,129,','rgba(255,255,255,'];
+
+  document.addEventListener('click', e => {
+    // Don't explode on interactive elements
+    if (e.target.closest('button,a,.ios-app,.ttt-cell,input,textarea,.aw-back')) return;
+    const count = 22 + Math.floor(Math.random() * 10);
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+      const speed = Math.random() * 5 + 2;
+      bursts.push({
+        x: e.clientX, y: e.clientY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        r: Math.random() * 2.5 + 0.8,
+        alpha: 1,
+        color: COLS[Math.floor(Math.random() * COLS.length)],
+      });
+    }
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const b = bursts[i];
+      b.x  += b.vx; b.y  += b.vy;
+      b.vy += 0.12;       // gravity
+      b.vx *= 0.97;       // drag
+      b.alpha -= 0.032;
+      if (b.alpha <= 0) { bursts.splice(i, 1); continue; }
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = b.color + b.alpha + ')';
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-3. PARTICLE COLOR ZONES ON SCROLL
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  const scrollMain = document.getElementById('scrollMain');
+  if (!scrollMain) return;
+
+  const ZONES = [
+    { id: 'about',    color: 'rgba(0,212,255,'   },  // cyan
+    { id: 'projects', color: 'rgba(124,58,237,'  },  // purple
+    { id: 'skills',   color: 'rgba(16,185,129,'  },  // green
+    { id: 'terminal', color: 'rgba(0,212,255,'   },  // cyan
+    { id: 'contact',  color: 'rgba(124,58,237,'  },  // purple
+  ];
+
+  let currentColor  = 'rgba(0,212,255,';
+  let targetColor   = 'rgba(0,212,255,';
+  let transProgress = 1;
+  let transId = null;
+
+  function startTransition(newColor) {
+    if (newColor === targetColor) return;
+    targetColor  = newColor;
+    transProgress = 0;
+    if (!transId) animateTransition();
+  }
+
+  function animateTransition() {
+    transProgress = Math.min(transProgress + 0.008, 1);
+    if (transProgress < 1) transId = requestAnimationFrame(animateTransition);
+    else transId = null;
+    // Apply to all particles
+    const pts = window._pts;
+    if (!pts) return;
+    pts.forEach(p => {
+      p.colorOverride = transProgress >= 1 ? targetColor : p.baseColor;
+    });
+    if (transProgress >= 1) currentColor = targetColor;
+  }
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const zone = ZONES.find(z => z.id === e.target.id);
+        if (zone) startTransition(zone.color);
+      }
+    });
+  }, { root: scrollMain, threshold: 0.5 });
+
+  ZONES.forEach(z => {
+    const el = document.getElementById(z.id);
+    if (el) obs.observe(el);
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-4. BREATHING CONSTELLATION
+═══════════════════════════════════════════════════ */
+(function() {
+  const c = document.createElement('canvas');
+  c.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0.5;';
+  document.body.appendChild(c);
+  const ctx = c.getContext('2d');
+  let W = c.width = window.innerWidth, H = c.height = window.innerHeight;
+  window.addEventListener('resize', () => { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }, {passive:true});
+
+  // Static star positions (percentage-based so they scale)
+  const STARS = [
+    {x:.12,y:.18},{x:.25,y:.08},{x:.38,y:.22},{x:.18,y:.35},{x:.30,y:.45},
+    {x:.45,y:.12},{x:.55,y:.28},{x:.65,y:.15},{x:.72,y:.38},{x:.60,y:.48},
+    {x:.80,y:.22},{x:.88,y:.12},{x:.78,y:.55},{x:.50,y:.60},{x:.35,y:.70},
+    {x:.20,y:.65},{x:.10,y:.55},{x:.42,y:.80},{x:.68,y:.72},{x:.85,y:.68},
+  ];
+  // Edges between stars (index pairs)
+  const EDGES = [
+    [0,1],[1,2],[2,4],[0,3],[3,4],[2,5],[5,6],[6,7],[7,8],[6,9],
+    [8,10],[10,11],[10,12],[9,12],[9,13],[4,13],[13,14],[3,15],[15,16],
+    [14,15],[13,18],[12,19],[11,10],[17,14],[18,19],
+  ];
+
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.004;
+    const breathe = 1 + Math.sin(t) * 0.06; // ±6% size breath
+
+    EDGES.forEach(([a, b]) => {
+      const ax = STARS[a].x * W * breathe + (1-breathe)*W*0.5;
+      const ay = STARS[a].y * H * breathe + (1-breathe)*H*0.5;
+      const bx = STARS[b].x * W * breathe + (1-breathe)*W*0.5;
+      const by = STARS[b].y * H * breathe + (1-breathe)*H*0.5;
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(0,212,255,0.055)`;
+      ctx.lineWidth = 0.7;
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+    });
+
+    STARS.forEach(s => {
+      const sx = s.x * W * breathe + (1-breathe)*W*0.5;
+      const sy = s.y * H * breathe + (1-breathe)*H*0.5;
+      const pulse = 0.9 + Math.sin(t * 1.4 + s.x * 10) * 0.35;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,212,255,${0.22 * pulse})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-5. WARP SPEED ON NAV CLICK
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  const warpC = document.createElement('canvas');
+  warpC.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:500;opacity:0;transition:opacity .1s;';
+  document.body.appendChild(warpC);
+  const ctx = warpC.getContext('2d');
+  let W = warpC.width = window.innerWidth, H = warpC.height = window.innerHeight;
+  window.addEventListener('resize', () => { W = warpC.width = window.innerWidth; H = warpC.height = window.innerHeight; }, {passive:true});
+
+  let warpActive = false, warpT = 0, warpRaf = null;
+  const CX = () => W / 2, CY = () => H / 2;
+
+  function triggerWarp() {
+    warpActive = true; warpT = 0;
+    warpC.style.opacity = '1';
+    if (warpRaf) cancelAnimationFrame(warpRaf);
+    warpLoop();
+  }
+
+  function warpLoop() {
+    ctx.clearRect(0, 0, W, H);
+    warpT++;
+    if (warpT > 22) {
+      warpActive = false;
+      warpC.style.opacity = '0';
+      ctx.clearRect(0, 0, W, H);
+      return;
+    }
+
+    const progress = warpT / 22;
+    const numStreaks = 80;
+    for (let i = 0; i < numStreaks; i++) {
+      const angle  = (i / numStreaks) * Math.PI * 2;
+      const minR   = 60 + progress * 80;
+      const length = progress * 250 + 20;
+      const alpha  = (1 - progress) * 0.5;
+
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(0,212,255,${alpha})`;
+      ctx.lineWidth = Math.random() * 1.2 + 0.3;
+      ctx.moveTo(CX() + Math.cos(angle) * minR, CY() + Math.sin(angle) * minR);
+      ctx.lineTo(CX() + Math.cos(angle) * (minR + length), CY() + Math.sin(angle) * (minR + length));
+      ctx.stroke();
+    }
+    warpRaf = requestAnimationFrame(warpLoop);
+  }
+
+  // Hook into all nav links and progress dots
+  document.addEventListener('click', e => {
+    const link = e.target.closest('.nav-link, .pdot, .scroll-cta');
+    if (link) triggerWarp();
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-6. DYNAMIC ISLAND ANIMATION
+═══════════════════════════════════════════════════ */
+(function() {
+  const island = document.querySelector('.dynamic-island');
+  if (!island) return;
+
+  const notifications = [
+    { icon:'📬', text:'New message received' },
+    { icon:'☁',  text:'Cloud deploy complete' },
+    { icon:'✅',  text:'Pipeline passed' },
+    { icon:'🔔',  text:'achansaipranay3@gmail.com' },
+  ];
+  let expanded = false, nIdx = 0;
+
+  function expand() {
+    if (expanded) return;
+    expanded = true;
+    const n = notifications[nIdx % notifications.length];
+    nIdx++;
+    island.innerHTML = `
+      <div class="di-notif">
+        <span class="di-notif-icon">${n.icon}</span>
+        <span class="di-notif-text">${n.text}</span>
+      </div>`;
+    island.classList.add('di-expanded');
+    setTimeout(collapse, 2800);
+  }
+
+  function collapse() {
+    island.classList.remove('di-expanded');
+    setTimeout(() => {
+      if (!expanded) return;
+      expanded = false;
+      island.innerHTML = `<div class="di-cam"></div><div class="di-sensor"></div>`;
+    }, 400);
+  }
+
+  island.addEventListener('mouseenter', expand);
+  // Also auto-show every 15s
+  setInterval(expand, 15000);
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-7. LOCK SCREEN LIVE WALLPAPER (Ken Burns)
+═══════════════════════════════════════════════════ */
+(function() {
+  const wall = document.querySelector('.lock-wallpaper');
+  if (!wall) return;
+  // Override with an animated version
+  wall.style.cssText += `
+    animation: kenBurns 12s ease-in-out infinite alternate;
+    transform-origin: center center;
+  `;
+  // Inject keyframes if not already present
+  if (!document.getElementById('kbStyle')) {
+    const s = document.createElement('style');
+    s.id = 'kbStyle';
+    s.textContent = `
+      @keyframes kenBurns {
+        0%   { transform: scale(1.0) translate(0%, 0%);    }
+        25%  { transform: scale(1.06) translate(-1.5%, 1%); }
+        50%  { transform: scale(1.04) translate(1%, -1.5%); }
+        75%  { transform: scale(1.08) translate(-1%, 0.5%); }
+        100% { transform: scale(1.05) translate(0.5%, -1%); }
+      }
+    `;
+    document.head.appendChild(s);
+  }
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-8. SPOTLIGHT CURSOR IN SKILLS SECTION
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  const skillsSection = document.getElementById('skills');
+  if (!skillsSection) return;
+
+  const spotlight = document.createElement('div');
+  spotlight.style.cssText = `
+    position:absolute; pointer-events:none; z-index:1;
+    width:340px; height:340px; border-radius:50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, rgba(0,212,255,0.03) 40%, transparent 70%);
+    transform:translate(-50%,-50%);
+    transition: left .08s ease, top .08s ease, opacity .4s;
+    opacity:0;
+  `;
+  // Must be inside the section for absolute positioning
+  skillsSection.style.position = 'relative';
+  skillsSection.appendChild(spotlight);
+
+  let insideSkills = false;
+
+  document.addEventListener('mousemove', e => {
+    if (!insideSkills) return;
+    const rect = skillsSection.getBoundingClientRect();
+    spotlight.style.left = (e.clientX - rect.left) + 'px';
+    spotlight.style.top  = (e.clientY - rect.top)  + 'px';
+  }, { passive: true });
+
+  const scrollMain = document.getElementById('scrollMain');
+  const obs = new IntersectionObserver(entries => {
+    insideSkills = entries[0].isIntersecting;
+    spotlight.style.opacity = insideSkills ? '1' : '0';
+  }, { root: scrollMain, threshold: 0.3 });
+  obs.observe(skillsSection);
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-9. MORPHING SECTION DIVIDERS
+═══════════════════════════════════════════════════ */
+(function() {
+  // Inject SVG wave dividers between each section
+  const sections = document.querySelectorAll('.scroll-section');
+  sections.forEach((sec, i) => {
+    if (i === sections.length - 1) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'wave-divider';
+    wrap.innerHTML = `
+      <svg viewBox="0 0 1440 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="wave-path" d="M0,20 C240,40 480,0 720,20 C960,40 1200,0 1440,20 L1440,40 L0,40 Z"/>
+      </svg>`;
+    sec.appendChild(wrap);
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   NEW-10. PORTAL TRANSITION BETWEEN SECTIONS
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  const portal = document.createElement('div');
+  portal.id = 'portalOverlay';
+  portal.style.cssText = `
+    position:fixed; inset:0; z-index:490;
+    pointer-events:none; overflow:hidden;
+  `;
+  portal.innerHTML = `
+    <div id="portalIris" style="
+      position:absolute; border-radius:50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, rgba(7,13,26,0.95) 60%, transparent 100%);
+      transform: translate(-50%,-50%) scale(0);
+      transition: transform 0.45s cubic-bezier(.77,0,.18,1), opacity 0.3s;
+      opacity:0;
+      width:200vmax; height:200vmax;
+      top:50%; left:50%;
+      pointer-events:none;
+    "></div>`;
+  document.body.appendChild(portal);
+
+  const iris = document.getElementById('portalIris');
+  let portalCooldown = false;
+
+  function flash() {
+    if (portalCooldown) return;
+    portalCooldown = true;
+    iris.style.opacity = '1';
+    iris.style.transform = 'translate(-50%,-50%) scale(0.015)';
+    // Force reflow
+    iris.getBoundingClientRect();
+    iris.style.transition = 'transform 0.38s cubic-bezier(.77,0,.18,1), opacity 0.3s';
+    iris.style.transform = 'translate(-50%,-50%) scale(1)';
+
+    setTimeout(() => {
+      iris.style.transform = 'translate(-50%,-50%) scale(0)';
+      iris.style.opacity = '0';
+      setTimeout(() => { portalCooldown = false; }, 500);
+    }, 380);
+  }
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('.nav-link, .pdot, .scroll-cta')) flash();
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
    F. MATRIX RAIN COLUMN (right edge, DevOps chars)
 ═══════════════════════════════════════════════════ */
 (function() {
@@ -860,17 +1289,27 @@
   const LINK_DIST_SQ = LINK_DIST * LINK_DIST;
 
   const COLS = ['rgba(0,212,255,', 'rgba(124,58,237,', 'rgba(16,185,129,'];
-  const pts = Array.from({length: COUNT}, () => ({
+  window._pts = Array.from({length: COUNT}, () => ({
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
     r: Math.random() * 1.5 + 0.4,
     vy: -(Math.random() * 0.25 + 0.07),
     vx: (Math.random() - 0.5) * 0.2,
+    baseVx: 0, baseVy: 0, // will be set below
     op: Math.random() * 0.4 + 0.08,
     pp: Math.random() * Math.PI * 2,
     ps: Math.random() * 0.018 + 0.006,
-    color: COLS[Math.floor(Math.random() * COLS.length)]
+    color: COLS[Math.floor(Math.random() * COLS.length)],
+    baseColor: null, // set below
+    gx: 0, gy: 0,   // gravity pull offsets
   }));
+  const pts = window._pts;
+  // Record base velocities and colors
+  pts.forEach(p => {
+    p.baseVx = p.vx;
+    p.baseVy = p.vy;
+    p.baseColor = p.color;
+  });
 
   let t = 0;
   function draw() {
@@ -897,9 +1336,14 @@
       const pulse = Math.sin(t * p.ps + p.pp) * 0.22 + 0.78;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = p.color + (p.op * pulse) + ')';
+      ctx.fillStyle = (p.colorOverride || p.color) + (p.op * pulse) + ')';
       ctx.fill();
-      p.y += p.vy; p.x += p.vx;
+      // Apply gravity pull + base velocity
+      p.x += p.vx + p.gx;
+      p.y += p.vy + p.gy;
+      // Decay gravity back to 0
+      p.gx *= 0.88;
+      p.gy *= 0.88;
       if (p.y < -6) { p.y = H + 6; p.x = Math.random() * W; }
       if (p.x < -6) p.x = W + 6;
       if (p.x > W + 6) p.x = -6;
@@ -1013,7 +1457,7 @@
 })();
 
 
-  
+
 (function() {
   if (window.innerWidth <= 900) return;
   const wrapper = document.getElementById('phoneWrapper');
