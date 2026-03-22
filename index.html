@@ -11,6 +11,39 @@
 
 <canvas id="particleCanvas"></canvas>
 <canvas id="keywordsCanvas"></canvas>
+<canvas id="auroraCanvas"></canvas>
+<canvas id="matrixCanvas"></canvas>
+
+<!-- Depth fog layers -->
+<div class="fog-layer fog-1"></div>
+<div class="fog-layer fog-2"></div>
+<div class="fog-layer fog-3"></div>
+
+<!-- Custom cursor elements -->
+<div id="cursor-glow"></div>
+<div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
+
+<!-- Skill tooltip -->
+<div id="skillTooltip" class="skill-tooltip"></div>
+
+<!-- Progress dots nav -->
+<nav class="progress-dots" id="progressDots">
+  <a class="pdot active" data-section="about"    title="About"><span class="pdot-label">about</span></a>
+  <a class="pdot"        data-section="projects"  title="Projects"><span class="pdot-label">projects</span></a>
+  <a class="pdot"        data-section="skills"    title="Skills"><span class="pdot-label">skills</span></a>
+  <a class="pdot"        data-section="terminal"  title="Terminal"><span class="pdot-label">terminal</span></a>
+  <a class="pdot"        data-section="contact"   title="Contact"><span class="pdot-label">contact</span></a>
+</nav>
+
+<!-- Konami / Easter egg overlay -->
+<div id="konamiOverlay" class="konami-overlay">
+  <canvas id="konamiCanvas"></canvas>
+  <div class="konami-msg">
+    <div class="konami-title">🎮 CHEAT CODE ACTIVATED</div>
+    <div class="konami-sub">You found the Easter egg. Respect.</div>
+  </div>
+</div>
 
 <!-- Scroll progress bar -->
 <div class="scroll-progress" id="scrollProgress"></div>
@@ -31,6 +64,8 @@
 
         <!-- Screen shine overlay -->
         <div class="screen-shine"></div>
+        <!-- Screen reflection sweep -->
+        <div class="screen-reflection" id="screenReflection"></div>
 
         <!-- ── BOOT ── -->
         <div class="boot-screen" id="bootScreen">
@@ -112,11 +147,12 @@
             </div>
 
             <div class="ios-app" onclick="openApp('email')">
-              <div class="ios-icon" style="background:linear-gradient(145deg,#1e90ff,#006ff5)">
+              <div class="ios-icon" style="background:linear-gradient(145deg,#1e90ff,#006ff5); position:relative;">
                 <svg viewBox="0 0 24 24" fill="none" width="30" height="30">
                   <rect x="2" y="4" width="20" height="16" rx="2.5" fill="rgba(255,255,255,0.15)" stroke="white" stroke-width="1.5"/>
                   <path d="M2 7l10 7 10-7" stroke="white" stroke-width="1.5" fill="none"/>
                 </svg>
+                <span class="notif-badge" id="mailBadge">1</span>
               </div>
               <span class="ios-label">Mail</span>
             </div>
@@ -383,7 +419,7 @@
         <a href="#terminal" class="nav-link"         data-section="terminal">terminal</a>
         <a href="#contact"  class="nav-link"         data-section="contact">contact</a>
       </div>
-      <a href="resume.pdf" download="Achan_Sai_Pranay_Resume.pdf" class="btn-resume" id="resumeBtn">
+      <a href="resume.pdf" download="Achan_Sai_Pranay_Resume.pdf" class="btn-resume" id="resumeBtn" data-magnetic>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Resume
       </a>
@@ -394,10 +430,11 @@
 
       <!-- ── ABOUT ── -->
       <section class="section scroll-section reveal-section" id="about" data-section="about">
+        <div class="section-watermark">01</div>
         <div class="section-inner">
           <h1 class="hero-name">
-            <span class="name-top reveal-item" style="--ri:0">ACHAN SAI</span>
-            <span class="name-main reveal-item" style="--ri:1">Pranay</span>
+            <span class="name-top reveal-item split-chars" style="--ri:0">ACHAN SAI</span>
+            <span class="name-main reveal-item glitch-name" id="glitchName" style="--ri:1">Pranay</span>
           </h1>
           <div class="hero-role reveal-item" style="--ri:2"><span class="role-prefix">&gt;_</span> <span id="roleText"></span><span class="cursor-blink">|</span></div>
           <p class="hero-bio reveal-item" style="--ri:3">CS student at <strong>Methodist College of Engineering &amp; Technology</strong>, Hyderabad (2024–2028). Building toward a career in <strong>DevOps &amp; Cloud Engineering</strong> — containerizing problems, automating pipelines, and shipping things that actually work.<br><br>Currently: Codtech IT Solutions DevOps Intern · Hackathon builder · Open-source contributor in progress.</p>
@@ -408,8 +445,36 @@
             <span class="hbadge hack">🏆 Hackathon Builder</span>
           </div>
           <div class="hero-ctas reveal-item" style="--ri:5">
-            <button class="btn-primary scroll-cta" data-target="projects">View Projects</button>
-            <button class="btn-outline scroll-cta" data-target="contact">Get in Touch</button>
+            <button class="btn-primary scroll-cta" data-target="projects" data-magnetic>View Projects</button>
+            <button class="btn-outline scroll-cta" data-target="contact" data-magnetic>Get in Touch</button>
+          </div>
+
+          <!-- Stats counter bar -->
+          <div class="stats-bar reveal-item" style="--ri:6">
+            <div class="stat-item">
+              <span class="stat-num" data-target="4">0</span><span class="stat-plus">+</span>
+              <span class="stat-label">Projects</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+              <span class="stat-num" data-target="1">0</span>
+              <span class="stat-label">Internship</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+              <span class="stat-num" data-target="2">0</span>
+              <span class="stat-label">Hackathons</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+              <span class="stat-num" data-target="100">0</span><span class="stat-plus">+</span>
+              <span class="stat-label">Commits</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+              <span class="stat-num" data-target="3">0</span>
+              <span class="stat-label">CNCF PRs</span>
+            </div>
           </div>
         </div>
         <div class="section-orb orb-cyan"></div>
@@ -417,28 +482,29 @@
 
       <!-- ── PROJECTS ── -->
       <section class="section scroll-section" id="projects" data-section="projects">
+        <div class="section-watermark">02</div>
         <div class="section-inner">
-          <div class="section-eyebrow reveal-item" style="--ri:0">// what I've built</div>
+          <div class="section-eyebrow reveal-item scramble-text" data-original="// what I've built" style="--ri:0">// what I've built</div>
           <div class="projects-grid">
-            <div class="proj-card-big featured-card reveal-card" style="--ci:0">
+            <div class="proj-card-big featured-card reveal-card" data-tilt style="--ci:0">
               <div class="card-tag cyan">HACKATHON · MAR 2026</div>
               <h3>Neuro Reader</h3>
               <p>Chrome extension for ADHD &amp; dyslexia users. Focus Mode, Dyslexia font, Bionic Reading, AI summarization via <strong>Groq llama-3.1-8b-instant</strong>. Built at Hack for Infinity 2K26 at Osmania University.</p>
               <div class="card-stack"><span>Chrome API</span><span>Groq AI</span><span>JavaScript</span><span>Service Worker</span></div>
             </div>
-            <div class="proj-card-big reveal-card" style="--ci:1">
+            <div class="proj-card-big reveal-card" data-tilt style="--ci:1">
               <div class="card-tag purple">DEVSECOPS · APR 2026</div>
               <h3>Secure DevOps Pipeline</h3>
               <p>SonarQube &amp; OWASP ZAP integrated into CI/CD. Automated vulnerability reports, improved security posture.</p>
               <div class="card-stack"><span>SonarQube</span><span>OWASP ZAP</span><span>Jenkins</span><span>GitHub Actions</span></div>
             </div>
-            <div class="proj-card-big reveal-card" style="--ci:2">
+            <div class="proj-card-big reveal-card" data-tilt style="--ci:2">
               <div class="card-tag green">CLOUD · APR 2026</div>
               <h3>K8s Microservices</h3>
               <p>Containerized apps deployed to Kubernetes with Deployments, Services, rolling updates and health checks.</p>
               <div class="card-stack"><span>Kubernetes</span><span>Docker</span><span>YAML</span><span>Helm</span></div>
             </div>
-            <div class="proj-card-big reveal-card" style="--ci:3">
+            <div class="proj-card-big reveal-card" data-tilt style="--ci:3">
               <div class="card-tag cyan">CI/CD · MAR 2026</div>
               <h3>Automated CI/CD Pipeline</h3>
               <p>Jenkins + GitHub Actions pipeline with Docker build/deploy automation and GitHub webhook integration.</p>
@@ -451,25 +517,26 @@
 
       <!-- ── SKILLS ── -->
       <section class="section scroll-section" id="skills" data-section="skills">
+        <div class="section-watermark">03</div>
         <div class="section-inner">
-          <div class="section-eyebrow reveal-item" style="--ri:0">// what I work with</div>
+          <div class="section-eyebrow reveal-item scramble-text" data-original="// what I work with" style="--ri:0">// what I work with</div>
           <div class="skills-grid">
             <div class="skill-block reveal-card" style="--ci:0">
               <div class="skill-block-title">Cloud &amp; DevOps</div>
-              <div class="bar-item"><span>AWS</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.05s"></div></div><span class="bar-pct">85%</span></div>
-              <div class="bar-item"><span>Docker</span><div class="bar-track"><div class="bar-fill" style="--w:90%;--delay:.12s"></div></div><span class="bar-pct">90%</span></div>
-              <div class="bar-item"><span>Kubernetes</span><div class="bar-track"><div class="bar-fill" style="--w:80%;--delay:.19s"></div></div><span class="bar-pct">80%</span></div>
-              <div class="bar-item"><span>Terraform</span><div class="bar-track"><div class="bar-fill" style="--w:75%;--delay:.26s"></div></div><span class="bar-pct">75%</span></div>
-              <div class="bar-item"><span>GitHub Actions</span><div class="bar-track"><div class="bar-fill" style="--w:88%;--delay:.33s"></div></div><span class="bar-pct">88%</span></div>
-              <div class="bar-item"><span>Linux / Bash</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.40s"></div></div><span class="bar-pct">85%</span></div>
+              <div class="bar-item" data-tooltip="Used in Codtech internship · Personal infra projects"><span>AWS</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.05s"></div></div><span class="bar-pct">85%</span></div>
+              <div class="bar-item" data-tooltip="K8s Microservices · Secure Pipeline · All projects"><span>Docker</span><div class="bar-track"><div class="bar-fill" style="--w:90%;--delay:.12s"></div></div><span class="bar-pct">90%</span></div>
+              <div class="bar-item" data-tooltip="K8s Microservices · CNCF contributions · Codtech"><span>Kubernetes</span><div class="bar-track"><div class="bar-fill" style="--w:80%;--delay:.19s"></div></div><span class="bar-pct">80%</span></div>
+              <div class="bar-item" data-tooltip="IaC study notes · Multi-env patterns · Codtech"><span>Terraform</span><div class="bar-track"><div class="bar-fill" style="--w:75%;--delay:.26s"></div></div><span class="bar-pct">75%</span></div>
+              <div class="bar-item" data-tooltip="Automated CI/CD Pipeline · Secure DevOps Pipeline"><span>GitHub Actions</span><div class="bar-track"><div class="bar-fill" style="--w:88%;--delay:.33s"></div></div><span class="bar-pct">88%</span></div>
+              <div class="bar-item" data-tooltip="Daily driver · Scripting · Server admin"><span>Linux / Bash</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.40s"></div></div><span class="bar-pct">85%</span></div>
             </div>
             <div class="skill-block reveal-card" style="--ci:1">
               <div class="skill-block-title">Programming</div>
-              <div class="bar-item"><span>Python</span><div class="bar-track"><div class="bar-fill" style="--w:80%;--delay:.05s"></div></div><span class="bar-pct">80%</span></div>
-              <div class="bar-item"><span>Bash / Shell</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.12s"></div></div><span class="bar-pct">85%</span></div>
-              <div class="bar-item"><span>YAML / JSON</span><div class="bar-track"><div class="bar-fill" style="--w:92%;--delay:.19s"></div></div><span class="bar-pct">92%</span></div>
-              <div class="bar-item"><span>C / C++</span><div class="bar-track"><div class="bar-fill" style="--w:65%;--delay:.26s"></div></div><span class="bar-pct">65%</span></div>
-              <div class="bar-item"><span>Go (basics)</span><div class="bar-track"><div class="bar-fill" style="--w:40%;--delay:.33s"></div></div><span class="bar-pct">40%</span></div>
+              <div class="bar-item" data-tooltip="Automation scripts · Secure Pipeline · Data tasks"><span>Python</span><div class="bar-track"><div class="bar-fill" style="--w:80%;--delay:.05s"></div></div><span class="bar-pct">80%</span></div>
+              <div class="bar-item" data-tooltip="CI/CD scripts · Linux automation · Deployment"><span>Bash / Shell</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.12s"></div></div><span class="bar-pct">85%</span></div>
+              <div class="bar-item" data-tooltip="Kubernetes manifests · Docker Compose · Configs"><span>YAML / JSON</span><div class="bar-track"><div class="bar-fill" style="--w:92%;--delay:.19s"></div></div><span class="bar-pct">92%</span></div>
+              <div class="bar-item" data-tooltip="MCET academics · Competitive programming"><span>C / C++</span><div class="bar-track"><div class="bar-fill" style="--w:65%;--delay:.26s"></div></div><span class="bar-pct">65%</span></div>
+              <div class="bar-item" data-tooltip="Learning for K8s operators & CNCF projects"><span>Go (basics)</span><div class="bar-track"><div class="bar-fill" style="--w:40%;--delay:.33s"></div></div><span class="bar-pct">40%</span></div>
             </div>
             <div class="skill-block full-width reveal-card" style="--ci:2">
               <div class="skill-block-title">Tools &amp; Monitoring</div>
@@ -486,8 +553,9 @@
 
       <!-- ── INTERACTIVE TERMINAL ── -->
       <section class="section scroll-section" id="terminal" data-section="terminal">
+        <div class="section-watermark">04</div>
         <div class="section-inner">
-          <div class="section-eyebrow reveal-item" style="--ri:0">// try it yourself</div>
+          <div class="section-eyebrow reveal-item scramble-text" data-original="// try it yourself" style="--ri:0">// try it yourself</div>
           <div class="iterm-layout reveal-card" style="--ci:0">
 
             <!-- Left: instruction panel -->
@@ -567,6 +635,7 @@
 
       <!-- ── CONTACT ── -->
       <section class="section scroll-section" id="contact" data-section="contact">
+        <div class="section-watermark">05</div>
         <div class="section-inner">
           <div class="contact-hero reveal-item" style="--ri:0">
             <h2>Let's Connect</h2>

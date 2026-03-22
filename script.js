@@ -1,6 +1,849 @@
+/* ═══════════════════════════════════════════════════
+   F. MATRIX RAIN COLUMN (right edge, DevOps chars)
+═══════════════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('matrixCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const CHARS = '01kubectl∞{}[]|><∂∑λdockerterraformhelmawsk8s∇≡∈∉⟨⟩';
+  const FONT_SIZE = 13;
+  // Only 3 columns on the far right edge
+  const COL_COUNT = 3;
+  const cols = Array.from({ length: COL_COUNT }, (_, i) => ({
+    x: W - (i + 1) * (FONT_SIZE + 6),
+    y: Math.random() * H,
+    speed: Math.random() * 1.2 + 0.6,
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = `${FONT_SIZE}px 'JetBrains Mono', monospace`;
+
+    cols.forEach((col, ci) => {
+      const colX = W - (ci + 1) * (FONT_SIZE + 6);
+      // Draw ~20 chars as a vertical strip
+      for (let row = 0; row < 22; row++) {
+        const charY = ((col.y - row * FONT_SIZE + H) % H);
+        const distFromHead = row;
+        const alpha = Math.max(0, 0.22 - distFromHead * 0.01);
+        const char = CHARS[Math.floor(Math.random() * CHARS.length)];
+        // Head char is bright cyan
+        const color = row === 0
+          ? `rgba(180,255,255,${alpha * 2.5})`
+          : `rgba(0,212,255,${alpha})`;
+        ctx.fillStyle = color;
+        ctx.fillText(char, colX, charY);
+      }
+      col.y = (col.y + col.speed) % H;
+    });
+
+    // Update column x positions if window resized
+    cols.forEach((col, i) => { col.x = W - (i + 1) * (FONT_SIZE + 6); });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════════════
+   G. CONSTELLATION CONNECT (particle hover lines)
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  // Draw on a dedicated overlay above keywords
+  const overlay = document.createElement('canvas');
+  overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:4;';
+  document.body.appendChild(overlay);
+  const ctx = overlay.getContext('2d');
+  let W, H, mouseX = -999, mouseY = -999;
+  const resize = () => { W = overlay.width = window.innerWidth; H = overlay.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; }, { passive: true });
+
+  // Access the particle points from particleCanvas (we'll just generate virtual nodes)
+  const NODES = Array.from({ length: 40 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: -(Math.random() * 0.2 + 0.05),
+  }));
+
+  const CONNECT_RADIUS = 130;
+  const MOUSE_RADIUS   = 160;
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Update nodes
+    NODES.forEach(n => {
+      n.x += n.vx; n.y += n.vy;
+      if (n.y < -10) { n.y = H + 10; n.x = Math.random() * W; }
+      if (n.x < -10) n.x = W + 10;
+      if (n.x > W + 10) n.x = -10;
+    });
+
+    // Draw constellation lines near mouse
+    const nearby = NODES.filter(n => {
+      const dx = n.x - mouseX, dy = n.y - mouseY;
+      return dx*dx + dy*dy < MOUSE_RADIUS * MOUSE_RADIUS;
+    });
+
+    // Connect nearby nodes to each other
+    for (let i = 0; i < nearby.length; i++) {
+      for (let j = i + 1; j < nearby.length; j++) {
+        const dx = nearby[i].x - nearby[j].x;
+        const dy = nearby[i].y - nearby[j].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < CONNECT_RADIUS) {
+          const alpha = (1 - d / CONNECT_RADIUS) * 0.35;
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(0,212,255,${alpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.moveTo(nearby[i].x, nearby[i].y);
+          ctx.lineTo(nearby[j].x, nearby[j].y);
+          ctx.stroke();
+        }
+      }
+      // Line from node to mouse
+      const dx = nearby[i].x - mouseX;
+      const dy = nearby[i].y - mouseY;
+      const d  = Math.sqrt(dx*dx + dy*dy);
+      const alpha = (1 - d / MOUSE_RADIUS) * 0.5;
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(0,212,255,${alpha})`;
+      ctx.lineWidth = 0.6;
+      ctx.moveTo(nearby[i].x, nearby[i].y);
+      ctx.lineTo(mouseX, mouseY);
+      ctx.stroke();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════════════
+   H. SPLIT CHARACTER ENTRANCE — name-top
+═══════════════════════════════════════════════════ */
+(function() {
+  document.querySelectorAll('.split-chars').forEach(el => {
+    const text = el.textContent;
+    el.textContent = '';
+    text.split('').forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.className = 'char';
+      span.textContent = ch === ' ' ? '\u00A0' : ch;
+      span.style.animationDelay = `${0.35 + i * 0.055}s`;
+      el.appendChild(span);
+    });
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   I. SCRAMBLE TEXT on section eyebrows
+═══════════════════════════════════════════════════ */
+(function() {
+  const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#abcdefghijklmnopqrstuvwxyz01';
+
+  function scramble(el) {
+    const original = el.dataset.original || el.textContent;
+    let iteration  = 0;
+    const total    = original.length * 3;
+
+    clearInterval(el._scrambleInterval);
+    el._scrambleInterval = setInterval(() => {
+      el.textContent = original.split('').map((ch, idx) => {
+        if (idx < iteration / 3) return original[idx];
+        if (ch === ' ') return ' ';
+        return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+      }).join('');
+      iteration++;
+      if (iteration > total) {
+        el.textContent = original;
+        clearInterval(el._scrambleInterval);
+      }
+    }, 28);
+  }
+
+  const isMobile   = window.innerWidth <= 900;
+  const scrollRoot = isMobile ? null : document.getElementById('scrollMain');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { scramble(e.target); obs.unobserve(e.target); }
+    });
+  }, { root: scrollRoot, threshold: 0.5 });
+
+  document.querySelectorAll('.scramble-text').forEach(el => obs.observe(el));
+})();
+
+/* ═══════════════════════════════════════════════════
+   J. PROGRESS DOTS NAV
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  const dots = document.querySelectorAll('.pdot');
+  const scrollMain = document.getElementById('scrollMain');
+  if (!dots.length || !scrollMain) return;
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.getElementById(dot.dataset.section);
+      if (target) scrollMain.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+    });
+  });
+
+  // Sync active dot with section observer
+  const sections = document.querySelectorAll('.scroll-section');
+  const sObs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.dataset.section;
+        dots.forEach(d => d.classList.toggle('active', d.dataset.section === id));
+      }
+    });
+  }, { root: scrollMain, threshold: 0.4 });
+  sections.forEach(s => sObs.observe(s));
+})();
+
+/* ═══════════════════════════════════════════════════
+   K. SKILL BAR TOOLTIP
+═══════════════════════════════════════════════════ */
+(function() {
+  const tooltip = document.getElementById('skillTooltip');
+  if (!tooltip) return;
+
+  document.querySelectorAll('.bar-item[data-tooltip]').forEach(item => {
+    item.addEventListener('mouseenter', e => {
+      tooltip.textContent = item.dataset.tooltip;
+      tooltip.classList.add('visible');
+      positionTooltip(e);
+    });
+    item.addEventListener('mousemove', positionTooltip);
+    item.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+  });
+
+  function positionTooltip(e) {
+    const x = e.clientX + 14;
+    const y = e.clientY + 14;
+    const tw = tooltip.offsetWidth;
+    tooltip.style.left = (x + tw > window.innerWidth - 20 ? e.clientX - tw - 14 : x) + 'px';
+    tooltip.style.top  = y + 'px';
+  }
+})();
+
+/* ═══════════════════════════════════════════════════
+   L. NOTIFICATION BADGE — mail icon pulse every 30s
+═══════════════════════════════════════════════════ */
+(function() {
+  const badge = document.getElementById('mailBadge');
+  if (!badge) return;
+
+  function showBadge() {
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 4000);
+  }
+  // First show after 8s (home screen appears ~7s), then every 30s
+  setTimeout(() => { showBadge(); setInterval(showBadge, 30000); }, 8000);
+})();
+
+/* ═══════════════════════════════════════════════════
+   M. SCREEN REFLECTION SWEEP — every 10s
+═══════════════════════════════════════════════════ */
+(function() {
+  const ref = document.getElementById('screenReflection');
+  if (!ref) return;
+
+  function sweep() {
+    ref.classList.remove('sweep');
+    void ref.offsetWidth; // reflow to restart animation
+    ref.classList.add('sweep');
+  }
+  setTimeout(() => { sweep(); setInterval(sweep, 10000); }, 5000);
+})();
+
+/* ═══════════════════════════════════════════════════
+   N. KONAMI CODE + "sudo hire me" EASTER EGG
+═══════════════════════════════════════════════════ */
+(function() {
+  const overlay = document.getElementById('konamiOverlay');
+  const canvas  = document.getElementById('konamiCanvas');
+  if (!overlay || !canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // ── Konami code detector ──────────────────────
+  const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown',
+                  'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let kIdx = 0;
+
+  document.addEventListener('keydown', e => {
+    if (e.key === KONAMI[kIdx]) {
+      kIdx++;
+      if (kIdx === KONAMI.length) { triggerKonami(); kIdx = 0; }
+    } else {
+      kIdx = e.key === KONAMI[0] ? 1 : 0;
+    }
+  });
+
+  // ── Matrix rain for konami ────────────────────
+  let konamiRaf = null;
+  function triggerKonami() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    overlay.classList.add('active');
+
+    const cols   = Math.floor(canvas.width / 16);
+    const drops  = Array(cols).fill(1);
+    const CHARS2 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+
+    function draw() {
+      ctx.fillStyle = 'rgba(0,0,0,0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#00d4ff';
+      ctx.font = '15px JetBrains Mono, monospace';
+      drops.forEach((y, i) => {
+        ctx.fillText(CHARS2[Math.floor(Math.random() * CHARS2.length)], i * 16, y * 16);
+        if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      });
+      konamiRaf = requestAnimationFrame(draw);
+    }
+    draw();
+
+    // Close on click or after 5s
+    const close = () => {
+      overlay.classList.remove('active');
+      cancelAnimationFrame(konamiRaf);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      overlay.removeEventListener('click', close);
+    };
+    overlay.addEventListener('click', close);
+    setTimeout(close, 5000);
+  }
+
+  // ── "sudo hire me" in interactive terminal ────
+  // Patch the itermRun to intercept this command
+  const _origRun = window.itermRun;
+  window.itermRun = function(cmd) {
+    if (cmd.trim().toLowerCase() === 'sudo hire me') {
+      triggerSudoHireMe();
+    } else if (_origRun) {
+      _origRun(cmd);
+    }
+  };
+
+  // Also patch the terminal input listener
+  setTimeout(() => {
+    const input = document.getElementById('itermInput');
+    if (!input) return;
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && input.value.trim().toLowerCase() === 'sudo hire me') {
+        e.stopImmediatePropagation();
+        input.value = '';
+        triggerSudoHireMe();
+      }
+    }, true);
+  }, 1000);
+
+  function triggerSudoHireMe() {
+    // Write to terminal output first
+    const output = document.getElementById('itermOutput');
+    if (output) {
+      const addLine = (cls, html) => {
+        const d = document.createElement('div');
+        d.className = `iterm-line ${cls}`;
+        d.innerHTML = html;
+        output.appendChild(d);
+        output.scrollTop = output.scrollHeight;
+      };
+      addLine('cmd-line', '<span class="ip">achan@mcet:~$</span> sudo hire me');
+      addLine('out-ok',   '[sudo] password for recruiter: ••••••••');
+      addLine('out-ok',   '✓ Authentication successful');
+      addLine('out-head', '🚀 EXECUTING: hire Achan Sai Pranay...');
+      addLine('out-val',  'Loading: talent.yml ████████████████ 100%');
+      addLine('out-ok',   '✓ DevOps skills verified');
+      addLine('out-ok',   '✓ Cloud experience confirmed');
+      addLine('out-ok',   '✓ Hackathon builder detected');
+      addLine('out-ok',   '✓ CNCF contributor badge granted');
+      addLine('out-head', '🎉 HIRE SUCCESSFUL — Contact: achansaipranay3@gmail.com');
+      addLine('spacer',   '');
+    }
+    // Then trigger a celebratory konami-style overlay
+    setTimeout(triggerKonami, 600);
+  }
+})();
+
+/* ═══════════════════════════════════════════════════
+   A. AURORA BOREALIS BACKGROUND
+═══════════════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('auroraCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  // Each blob is a slow-drifting radial gradient
+  const blobs = [
+    { x:0.15, y:0.3,  r:0.38, hue:185, speed:0.00018, ox:0, oy:0, phase:0    },
+    { x:0.70, y:0.2,  r:0.32, hue:270, speed:0.00024, ox:0, oy:0, phase:2.1  },
+    { x:0.45, y:0.75, r:0.28, hue:160, speed:0.00020, ox:0, oy:0, phase:4.3  },
+    { x:0.85, y:0.6,  r:0.35, hue:200, speed:0.00016, ox:0, oy:0, phase:1.4  },
+    { x:0.25, y:0.85, r:0.25, hue:290, speed:0.00022, ox:0, oy:0, phase:3.7  },
+  ];
+
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 1;
+
+    blobs.forEach(b => {
+      // Lissajous drift — each blob traces a slow figure-8
+      const bx = (b.x + Math.sin(t * b.speed * 1.3 + b.phase) * 0.14) * W;
+      const by = (b.y + Math.cos(t * b.speed       + b.phase) * 0.10) * H;
+      const br = b.r * Math.min(W, H);
+
+      const alpha = 0.13 + Math.sin(t * b.speed * 0.7 + b.phase) * 0.04;
+
+      const grad = ctx.createRadialGradient(bx, by, 0, bx, by, br);
+      grad.addColorStop(0,   `hsla(${b.hue},90%,60%,${alpha})`);
+      grad.addColorStop(0.4, `hsla(${b.hue + 20},80%,50%,${alpha * 0.5})`);
+      grad.addColorStop(1,   `hsla(${b.hue},70%,40%,0)`);
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(bx, by, br * 1.4, br * 0.7,
+                  Math.sin(t * b.speed * 0.5) * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════════════
+   B. SHOOTING STARS
+═══════════════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('particleCanvas'); // reuse — drawn on top
+  // We'll draw onto the keywords canvas to avoid particle interference
+  const sc = document.getElementById('keywordsCanvas');
+  if (!sc) return;
+  // Actually draw on a new transparent overlay
+  const overlay = document.createElement('canvas');
+  overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:3;';
+  document.body.appendChild(overlay);
+  const ctx = overlay.getContext('2d');
+  let W, H;
+  const resize = () => { W = overlay.width = window.innerWidth; H = overlay.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const stars = [];
+
+  function spawnStar() {
+    // Start from top-left region, travel diagonally down-right
+    const angle = (Math.random() * 20 + 20) * Math.PI / 180; // 20–40° from horizontal
+    const speed = Math.random() * 6 + 7;
+    stars.push({
+      x:     Math.random() * W * 0.7,
+      y:     Math.random() * H * 0.4,
+      vx:    Math.cos(angle) * speed,
+      vy:    Math.sin(angle) * speed,
+      len:   Math.random() * 100 + 80,
+      alpha: 1,
+      width: Math.random() * 1.2 + 0.4,
+    });
+  }
+
+  // Spawn a star every 3.5–7s
+  function scheduleStar() {
+    spawnStar();
+    setTimeout(scheduleStar, Math.random() * 3500 + 3500);
+  }
+  setTimeout(scheduleStar, 1500);
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = stars.length - 1; i >= 0; i--) {
+      const s = stars[i];
+      s.x += s.vx; s.y += s.vy;
+      s.alpha -= 0.018;
+
+      if (s.alpha <= 0 || s.x > W + 50 || s.y > H + 50) {
+        stars.splice(i, 1); continue;
+      }
+
+      // Tail gradient
+      const grad = ctx.createLinearGradient(
+        s.x, s.y,
+        s.x - s.vx * (s.len / speed(s)), s.y - s.vy * (s.len / speed(s))
+      );
+      grad.addColorStop(0,   `rgba(255,255,255,${s.alpha})`);
+      grad.addColorStop(0.3, `rgba(0,212,255,${s.alpha * 0.6})`);
+      grad.addColorStop(1,   'rgba(0,212,255,0)');
+
+      ctx.beginPath();
+      ctx.strokeStyle = grad;
+      ctx.lineWidth   = s.width;
+      ctx.lineCap     = 'round';
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(
+        s.x - s.vx * (s.len / Math.hypot(s.vx, s.vy)),
+        s.y - s.vy * (s.len / Math.hypot(s.vx, s.vy))
+      );
+      ctx.stroke();
+
+      // Bright head dot
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.width * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  function speed(s) { return Math.hypot(s.vx, s.vy); }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════════════
+   C. GLITCH FLICKER — hero name
+═══════════════════════════════════════════════════ */
+(function() {
+  const el = document.getElementById('glitchName');
+  if (!el) return;
+
+  // Set the data-text so ::before / ::after CSS can use attr()
+  el.setAttribute('data-text', el.textContent);
+
+  // Random periodic "hard glitch" shake — supplements the CSS animation
+  function scheduleGlitch() {
+    const delay = Math.random() * 6000 + 4000; // every 4–10s
+    setTimeout(() => {
+      el.classList.add('glitching');
+      setTimeout(() => el.classList.remove('glitching'), 150);
+      scheduleGlitch();
+    }, delay);
+  }
+  scheduleGlitch();
+})();
+
+/* ═══════════════════════════════════════════════════
+   D. COUNTER NUMBER STATS BAR
+═══════════════════════════════════════════════════ */
+(function() {
+  const statNums = document.querySelectorAll('.stat-num');
+  if (!statNums.length) return;
+
+  let animated = false;
+
+  function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function animateCounters() {
+    if (animated) return;
+    animated = true;
+
+    statNums.forEach(el => {
+      const target   = parseInt(el.dataset.target, 10);
+      const duration = 1800 + Math.random() * 400; // slightly randomised
+      const start    = performance.now();
+
+      el.classList.add('counting');
+
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased    = easeOutQuart(progress);
+        el.textContent = Math.round(eased * target);
+
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = target;
+          el.classList.remove('counting');
+        }
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // Fire when stats bar scrolls into view
+  const bar = document.querySelector('.stats-bar');
+  if (!bar) return;
+
+  const isMobile = window.innerWidth <= 900;
+  const scrollRoot = isMobile ? null : document.getElementById('scrollMain');
+
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      animateCounters();
+      obs.disconnect();
+    }
+  }, { root: scrollRoot, threshold: 0.4 });
+
+  obs.observe(bar);
+})();
+
+/* ═══════════════════════════════════════════════════
+   E. CARD 3D TILT ON HOVER
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+
+  const MAX_TILT = 12; // degrees
+  const PERSPECTIVE = 800;
+
+  document.querySelectorAll('[data-tilt]').forEach(card => {
+    let rafId = null;
+    let currentX = 0, currentY = 0;
+    let targetX  = 0, targetY  = 0;
+    let isOver   = false;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function animate() {
+      currentX = lerp(currentX, targetX, 0.1);
+      currentY = lerp(currentY, targetY, 0.1);
+
+      card.style.transform =
+        `perspective(${PERSPECTIVE}px) rotateX(${currentX}deg) rotateY(${currentY}deg) scale3d(1.02,1.02,1.02)`;
+
+      if (isOver || Math.abs(currentX) > 0.05 || Math.abs(currentY) > 0.05) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        card.style.transform = '';
+        card.style.transition = 'transform 0.6s cubic-bezier(.22,1,.36,1), border-color .25s';
+      }
+    }
+
+    card.addEventListener('mouseenter', () => {
+      isOver = true;
+      card.style.transition = 'border-color .25s';
+      if (!rafId) animate();
+    });
+
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width  - 0.5; // -0.5 → 0.5
+      const y = (e.clientY - rect.top)  / rect.height - 0.5;
+      targetY =  x * MAX_TILT * 2;
+      targetX = -y * MAX_TILT * 2;
+
+      // Move gloss hotspot via CSS vars
+      card.style.setProperty('--mx', `${(x + 0.5) * 100}%`);
+      card.style.setProperty('--my', `${(y + 0.5) * 100}%`);
+    });
+
+    card.addEventListener('mouseleave', () => {
+      isOver   = false;
+      targetX  = 0;
+      targetY  = 0;
+      card.style.setProperty('--mx', '50%');
+      card.style.setProperty('--my', '50%');
+      if (!rafId) animate();
+    });
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   1. CUSTOM CURSOR + GLOW TRAIL
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+
+  const dot   = document.getElementById('cursor-dot');
+  const ring  = document.getElementById('cursor-ring');
+  const glow  = document.getElementById('cursor-glow');
+  if (!dot || !ring || !glow) return;
+
+  let mouseX = -200, mouseY = -200;
+  let ringX  = -200, ringY  = -200;
+
+  // Smooth ring follows with slight lag
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.14;
+    ringY += (mouseY - ringY) * 0.14;
+    ring.style.left = ringX + 'px';
+    ring.style.top  = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    // Dot snaps instantly
+    dot.style.left  = mouseX + 'px';
+    dot.style.top   = mouseY + 'px';
+    // Glow lags via CSS transition
+    glow.style.left = mouseX + 'px';
+    glow.style.top  = mouseY + 'px';
+  }, { passive: true });
+
+  // Hover state
+  const hoverEls = 'a, button, [onclick], .ios-app, .nav-link, .iterm-cmd-item, .ttt-cell, .proj-card-big, .ccard, .chip, .card-stack span, .btn-resume';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest(hoverEls)) document.body.classList.add('cursor-hover');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(hoverEls)) document.body.classList.remove('cursor-hover');
+  });
+
+  // Click state
+  document.addEventListener('mousedown', () => document.body.classList.add('cursor-click'));
+  document.addEventListener('mouseup',   () => document.body.classList.remove('cursor-click'));
+
+  // Hide when leaving window
+  document.addEventListener('mouseleave', () => {
+    dot.style.opacity = '0'; ring.style.opacity = '0'; glow.style.opacity = '0';
+  });
+  document.addEventListener('mouseenter', () => {
+    dot.style.opacity = '1'; ring.style.opacity = '1'; glow.style.opacity = '1';
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   2. MAGNETIC BUTTONS
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+
+  const STRENGTH = 0.38; // how far buttons stretch toward cursor (0–1)
+  const RADIUS   = 90;   // px — how close cursor must be to activate
+
+  document.querySelectorAll('[data-magnetic]').forEach(el => {
+    let rafId = null;
+    let tx = 0, ty = 0; // current offset
+    let active = false;
+
+    function onMove(e) {
+      const rect = el.getBoundingClientRect();
+      const cx   = rect.left + rect.width  / 2;
+      const cy   = rect.top  + rect.height / 2;
+      const dx   = e.clientX - cx;
+      const dy   = e.clientY - cy;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+
+      if (dist < RADIUS) {
+        active = true;
+        const pull = (1 - dist / RADIUS);
+        tx = dx * STRENGTH * pull;
+        ty = dy * STRENGTH * pull;
+        el.style.transition = 'transform 0.1s ease';
+        el.style.transform  = `translate(${tx}px, ${ty}px)`;
+      } else if (active) {
+        active = false;
+        el.style.transition = 'transform 0.5s cubic-bezier(.22,1,.36,1)';
+        el.style.transform  = 'translate(0,0)';
+      }
+    }
+
+    function onLeave() {
+      active = false;
+      el.style.transition = 'transform 0.5s cubic-bezier(.22,1,.36,1)';
+      el.style.transform  = 'translate(0,0)';
+    }
+
+    document.addEventListener('mousemove', onMove, { passive: true });
+    el.addEventListener('mouseleave', onLeave);
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   3. BUTTON RIPPLE EFFECT
+═══════════════════════════════════════════════════ */
+(function() {
+  function addRipple(e) {
+    const btn  = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 2;
+    const x    = e.clientX - rect.left - size / 2;
+    const y    = e.clientY - rect.top  - size / 2;
+
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple-wave';
+    ripple.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      left: ${x}px; top: ${y}px;
+    `;
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+  }
+
+  // Apply to all current + future ripple targets
+  function attachRipples() {
+    document.querySelectorAll('.btn-primary, .btn-outline, .btn-resume').forEach(btn => {
+      if (!btn.dataset.rippleAttached) {
+        btn.addEventListener('click', addRipple);
+        btn.dataset.rippleAttached = '1';
+      }
+    });
+  }
+  attachRipples();
+  // Re-attach after any DOM changes (e.g. sections reveal)
+  new MutationObserver(attachRipples).observe(document.body, { childList: true, subtree: true });
+})();
+
+/* ═══════════════════════════════════════════════════
+   4. SCROLL-LINKED PARALLAX on background keywords
+   (handled in keywords canvas — speed multiplier by layer)
+   Also: section orbs shift vertically with scroll
+═══════════════════════════════════════════════════ */
+(function() {
+  if (window.innerWidth <= 900) return;
+  const scrollMain = document.getElementById('scrollMain');
+  if (!scrollMain) return;
+
+  // Orbs move at different rates — depth illusion
+  const orbs = [
+    { el: null, selector: '#about .orb-cyan',      rate: 0.18 },
+    { el: null, selector: '#projects .orb-purple',  rate: -0.12 },
+    { el: null, selector: '#skills .orb-green',     rate: 0.22 },
+    { el: null, selector: '#contact .orb-cyan',     rate: -0.15 },
+  ];
+
+  // Resolve elements after DOM is ready
+  function resolveOrbs() {
+    orbs.forEach(o => { o.el = document.querySelector(o.selector); });
+  }
+  setTimeout(resolveOrbs, 500);
+
+  let ticking = false;
+  scrollMain.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const st = scrollMain.scrollTop;
+      orbs.forEach(o => {
+        if (!o.el) return;
+        const offset = st * o.rate;
+        o.el.style.transform = `translateY(calc(-50% + ${offset}px))`;
+      });
+      ticking = false;
+    });
+  }, { passive: true });
+
+  // Also: section eyebrows + hero name have very subtle parallax
+  scrollMain.addEventListener('scroll', () => {
+    requestAnimationFrame(() => {
+      const st = scrollMain.scrollTop;
+      const hero = document.querySelector('.hero-name');
+      if (hero) hero.style.transform = `translateY(${st * 0.06}px)`;
+    });
+  }, { passive: true });
+})();
+
 /* ─────────────────────────────
    PARTICLES
 ───────────────────────────── */
+
 (function() {
   const canvas = document.getElementById('particleCanvas');
   if (!canvas) return;
@@ -170,7 +1013,8 @@
 })();
 
 
-   (function() {
+  
+(function() {
   if (window.innerWidth <= 900) return;
   const wrapper = document.getElementById('phoneWrapper');
   if (!wrapper) return;
