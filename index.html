@@ -518,34 +518,84 @@
       <!-- ── SKILLS ── -->
       <section class="section scroll-section" id="skills" data-section="skills">
         <div class="section-watermark">03</div>
-        <div class="section-inner">
+        <div class="section-inner orbital-section-inner">
           <div class="section-eyebrow reveal-item scramble-text" data-original="// what I work with" style="--ri:0">// what I work with</div>
-          <div class="skills-grid">
-            <div class="skill-block reveal-card" style="--ci:0">
-              <div class="skill-block-title">Cloud &amp; DevOps</div>
-              <div class="bar-item" data-tooltip="Used in Codtech internship · Personal infra projects"><span>AWS</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.05s"></div></div><span class="bar-pct">85%</span></div>
-              <div class="bar-item" data-tooltip="K8s Microservices · Secure Pipeline · All projects"><span>Docker</span><div class="bar-track"><div class="bar-fill" style="--w:90%;--delay:.12s"></div></div><span class="bar-pct">90%</span></div>
-              <div class="bar-item" data-tooltip="K8s Microservices · CNCF contributions · Codtech"><span>Kubernetes</span><div class="bar-track"><div class="bar-fill" style="--w:80%;--delay:.19s"></div></div><span class="bar-pct">80%</span></div>
-              <div class="bar-item" data-tooltip="IaC study notes · Multi-env patterns · Codtech"><span>Terraform</span><div class="bar-track"><div class="bar-fill" style="--w:75%;--delay:.26s"></div></div><span class="bar-pct">75%</span></div>
-              <div class="bar-item" data-tooltip="Automated CI/CD Pipeline · Secure DevOps Pipeline"><span>GitHub Actions</span><div class="bar-track"><div class="bar-fill" style="--w:88%;--delay:.33s"></div></div><span class="bar-pct">88%</span></div>
-              <div class="bar-item" data-tooltip="Daily driver · Scripting · Server admin"><span>Linux / Bash</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.40s"></div></div><span class="bar-pct">85%</span></div>
+
+          <div class="orbital-layout reveal-card" style="--ci:0">
+
+            <!-- LEFT: orbital canvas -->
+            <div class="orbital-stage">
+              <canvas id="orbitalCanvas"></canvas>
+              <!-- Skill detail popup -->
+              <div class="orbital-detail" id="orbitalDetail">
+                <div class="od-name"  id="odName"></div>
+                <div class="od-level" id="odLevel"></div>
+                <div class="od-bar">
+                  <div class="od-fill" id="odFill"></div>
+                </div>
+                <div class="od-used"  id="odUsed"></div>
+              </div>
             </div>
-            <div class="skill-block reveal-card" style="--ci:1">
-              <div class="skill-block-title">Programming</div>
-              <div class="bar-item" data-tooltip="Automation scripts · Secure Pipeline · Data tasks"><span>Python</span><div class="bar-track"><div class="bar-fill" style="--w:80%;--delay:.05s"></div></div><span class="bar-pct">80%</span></div>
-              <div class="bar-item" data-tooltip="CI/CD scripts · Linux automation · Deployment"><span>Bash / Shell</span><div class="bar-track"><div class="bar-fill" style="--w:85%;--delay:.12s"></div></div><span class="bar-pct">85%</span></div>
-              <div class="bar-item" data-tooltip="Kubernetes manifests · Docker Compose · Configs"><span>YAML / JSON</span><div class="bar-track"><div class="bar-fill" style="--w:92%;--delay:.19s"></div></div><span class="bar-pct">92%</span></div>
-              <div class="bar-item" data-tooltip="MCET academics · Competitive programming"><span>C / C++</span><div class="bar-track"><div class="bar-fill" style="--w:65%;--delay:.26s"></div></div><span class="bar-pct">65%</span></div>
-              <div class="bar-item" data-tooltip="Learning for K8s operators & CNCF projects"><span>Go (basics)</span><div class="bar-track"><div class="bar-fill" style="--w:40%;--delay:.33s"></div></div><span class="bar-pct">40%</span></div>
+
+            <!-- RIGHT: category legend + currently learning -->
+            <div class="orbital-sidebar">
+              <div class="orb-legend">
+                <div class="orb-legend-title">Orbit Rings</div>
+                <div class="orb-legend-item">
+                  <span class="orb-ring-swatch" style="background:rgba(0,212,255,0.7)"></span>
+                  <span>Ring 1 — Cloud &amp; DevOps</span>
+                </div>
+                <div class="orb-legend-item">
+                  <span class="orb-ring-swatch" style="background:rgba(124,58,237,0.7)"></span>
+                  <span>Ring 2 — CI/CD &amp; IaC</span>
+                </div>
+                <div class="orb-legend-item">
+                  <span class="orb-ring-swatch" style="background:rgba(16,185,129,0.7)"></span>
+                  <span>Ring 3 — Languages</span>
+                </div>
+                <div class="orb-legend-item">
+                  <span class="orb-ring-swatch" style="background:rgba(255,189,46,0.7)"></span>
+                  <span>Ring 4 — Tools</span>
+                </div>
+              </div>
+
+              <div class="orb-hint">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                Hover a node to inspect · Click to pin
+              </div>
+
+              <button class="btn-view-skills" id="btnViewSkills" onclick="openSkillsPanel()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                View All Skills
+                <span class="btn-arrow">→</span>
+              </button>
+
+              <div class="orb-learning-block">
+                <div class="orb-learning-title">Currently Learning</div>
+                <div class="orb-learning-chips">
+                  <span class="orb-chip-learn">CKA Prep</span>
+                  <span class="orb-chip-learn">AWS SAA</span>
+                  <span class="orb-chip-learn">K8s Operators</span>
+                  <span class="orb-chip-learn">CNCF Contrib</span>
+                </div>
+              </div>
+
+              <div class="orb-tools-block">
+                <div class="orb-tools-title">Tools &amp; Monitoring</div>
+                <div class="orb-tools-chips">
+                  <span class="orb-chip-tool">Git</span>
+                  <span class="orb-chip-tool">Jenkins</span>
+                  <span class="orb-chip-tool">Ansible</span>
+                  <span class="orb-chip-tool">Helm</span>
+                  <span class="orb-chip-tool">Prometheus</span>
+                  <span class="orb-chip-tool">Grafana</span>
+                  <span class="orb-chip-tool">ELK Stack</span>
+                  <span class="orb-chip-tool">nginx</span>
+                  <span class="orb-chip-tool">GitLab CI</span>
+                </div>
+              </div>
             </div>
-            <div class="skill-block full-width reveal-card" style="--ci:2">
-              <div class="skill-block-title">Tools &amp; Monitoring</div>
-              <div class="chip-row"><span class="chip">Git</span><span class="chip">Jenkins</span><span class="chip">Ansible</span><span class="chip">Helm</span><span class="chip">Prometheus</span><span class="chip">Grafana</span><span class="chip">ELK Stack</span><span class="chip">nginx</span><span class="chip">GitLab CI</span></div>
-            </div>
-            <div class="skill-block full-width reveal-card" style="--ci:3">
-              <div class="skill-block-title">Currently Learning</div>
-              <div class="chip-row"><span class="chip green-chip">CKA Prep</span><span class="chip green-chip">AWS SAA</span><span class="chip green-chip">CNCF Contributions</span><span class="chip green-chip">K8s Operators</span></div>
-            </div>
+
           </div>
         </div>
         <div class="section-orb orb-green"></div>
@@ -718,6 +768,319 @@
 
 </div><!-- /portfolio-container -->
 </div><!-- /scene -->
+
+<!-- ═══════ SKILLS SLIDE PANEL ═══════ -->
+<div class="skills-panel-backdrop" id="skillsPanelBackdrop" onclick="closeSkillsPanel()"></div>
+<aside class="skills-panel" id="skillsPanel">
+
+  <div class="sp-header">
+    <div class="sp-title-group">
+      <span class="sp-eyebrow">full stack</span>
+      <h2 class="sp-title">Skills &amp; Expertise</h2>
+    </div>
+    <button class="sp-close" onclick="closeSkillsPanel()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="sp-body">
+
+    <!-- Category 1 -->
+    <div class="sp-category">
+      <div class="sp-cat-header">
+        <span class="sp-cat-dot" style="background:#00d4ff"></span>
+        <span class="sp-cat-name">Cloud &amp; DevOps</span>
+        <span class="sp-cat-count">4 skills</span>
+      </div>
+      <div class="sp-skills-list">
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Docker</span>
+            <span class="sp-skill-badge expert">Expert</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:90%;--spc:#00d4ff"></div>
+            <span class="sp-skill-pct">90%</span>
+          </div>
+          <span class="sp-skill-used">K8s Microservices · All projects</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Kubernetes</span>
+            <span class="sp-skill-badge advanced">Advanced</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:80%;--spc:#00d4ff"></div>
+            <span class="sp-skill-pct">80%</span>
+          </div>
+          <span class="sp-skill-used">CNCF contributions · Codtech internship</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">AWS</span>
+            <span class="sp-skill-badge advanced">Advanced</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:85%;--spc:#00d4ff"></div>
+            <span class="sp-skill-pct">85%</span>
+          </div>
+          <span class="sp-skill-used">Codtech internship · Personal infra</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Linux / Bash</span>
+            <span class="sp-skill-badge advanced">Advanced</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:85%;--spc:#00d4ff"></div>
+            <span class="sp-skill-pct">85%</span>
+          </div>
+          <span class="sp-skill-used">Daily driver · Scripting · Server admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category 2 -->
+    <div class="sp-category">
+      <div class="sp-cat-header">
+        <span class="sp-cat-dot" style="background:#7c3aed"></span>
+        <span class="sp-cat-name">CI/CD &amp; IaC</span>
+        <span class="sp-cat-count">5 skills</span>
+      </div>
+      <div class="sp-skills-list">
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">GitHub Actions</span>
+            <span class="sp-skill-badge expert">Expert</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:88%;--spc:#7c3aed"></div>
+            <span class="sp-skill-pct">88%</span>
+          </div>
+          <span class="sp-skill-used">Automated CI/CD · Secure Pipeline</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Jenkins</span>
+            <span class="sp-skill-badge advanced">Advanced</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:78%;--spc:#7c3aed"></div>
+            <span class="sp-skill-pct">78%</span>
+          </div>
+          <span class="sp-skill-used">Automated CI/CD · Codtech internship</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Terraform</span>
+            <span class="sp-skill-badge advanced">Advanced</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:75%;--spc:#7c3aed"></div>
+            <span class="sp-skill-pct">75%</span>
+          </div>
+          <span class="sp-skill-used">IaC patterns · Multi-env deploys</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Helm</span>
+            <span class="sp-skill-badge proficient">Proficient</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:72%;--spc:#7c3aed"></div>
+            <span class="sp-skill-pct">72%</span>
+          </div>
+          <span class="sp-skill-used">K8s Microservices · Package management</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">ArgoCD</span>
+            <span class="sp-skill-badge intermediate">Intermediate</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:55%;--spc:#7c3aed"></div>
+            <span class="sp-skill-pct">55%</span>
+          </div>
+          <span class="sp-skill-used">GitOps exploration · CNCF ecosystem</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category 3 -->
+    <div class="sp-category">
+      <div class="sp-cat-header">
+        <span class="sp-cat-dot" style="background:#10b981"></span>
+        <span class="sp-cat-name">Languages</span>
+        <span class="sp-cat-count">5 skills</span>
+      </div>
+      <div class="sp-skills-list">
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">YAML / JSON</span>
+            <span class="sp-skill-badge expert">Expert</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:92%;--spc:#10b981"></div>
+            <span class="sp-skill-pct">92%</span>
+          </div>
+          <span class="sp-skill-used">K8s manifests · Docker Compose · Configs</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Bash / Shell</span>
+            <span class="sp-skill-badge advanced">Advanced</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:85%;--spc:#10b981"></div>
+            <span class="sp-skill-pct">85%</span>
+          </div>
+          <span class="sp-skill-used">CI/CD scripts · Linux automation</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Python</span>
+            <span class="sp-skill-badge advanced">Advanced</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:80%;--spc:#10b981"></div>
+            <span class="sp-skill-pct">80%</span>
+          </div>
+          <span class="sp-skill-used">Automation scripts · Data tasks</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">C / C++</span>
+            <span class="sp-skill-badge proficient">Proficient</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:65%;--spc:#10b981"></div>
+            <span class="sp-skill-pct">65%</span>
+          </div>
+          <span class="sp-skill-used">MCET academics · Competitive programming</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Go</span>
+            <span class="sp-skill-badge intermediate">Intermediate</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:40%;--spc:#10b981"></div>
+            <span class="sp-skill-pct">40%</span>
+          </div>
+          <span class="sp-skill-used">Learning for K8s operators</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category 4 -->
+    <div class="sp-category">
+      <div class="sp-cat-header">
+        <span class="sp-cat-dot" style="background:#ffbd2e"></span>
+        <span class="sp-cat-name">Tools &amp; Monitoring</span>
+        <span class="sp-cat-count">6 skills</span>
+      </div>
+      <div class="sp-skills-list">
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Git</span>
+            <span class="sp-skill-badge expert">Expert</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:92%;--spc:#ffbd2e"></div>
+            <span class="sp-skill-pct">92%</span>
+          </div>
+          <span class="sp-skill-used">Every project · Open-source contributions</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Prometheus</span>
+            <span class="sp-skill-badge proficient">Proficient</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:70%;--spc:#ffbd2e"></div>
+            <span class="sp-skill-pct">70%</span>
+          </div>
+          <span class="sp-skill-used">Monitoring pipelines · SRE learning</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Grafana</span>
+            <span class="sp-skill-badge proficient">Proficient</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:68%;--spc:#ffbd2e"></div>
+            <span class="sp-skill-pct">68%</span>
+          </div>
+          <span class="sp-skill-used">Dashboards · Observability</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">Ansible</span>
+            <span class="sp-skill-badge proficient">Proficient</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:65%;--spc:#ffbd2e"></div>
+            <span class="sp-skill-pct">65%</span>
+          </div>
+          <span class="sp-skill-used">Config management · Automation</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">ELK Stack</span>
+            <span class="sp-skill-badge proficient">Proficient</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:60%;--spc:#ffbd2e"></div>
+            <span class="sp-skill-pct">60%</span>
+          </div>
+          <span class="sp-skill-used">Log analysis · Debugging pipelines</span>
+        </div>
+        <div class="sp-skill-row">
+          <div class="sp-skill-meta">
+            <span class="sp-skill-name">nginx</span>
+            <span class="sp-skill-badge proficient">Proficient</span>
+          </div>
+          <div class="sp-skill-bar-wrap">
+            <div class="sp-skill-bar" style="--spw:62%;--spc:#ffbd2e"></div>
+            <span class="sp-skill-pct">62%</span>
+          </div>
+          <span class="sp-skill-used">Reverse proxy · Web servers</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Currently Learning -->
+    <div class="sp-learning-section">
+      <div class="sp-learning-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Currently Learning
+      </div>
+      <div class="sp-learning-grid">
+        <div class="sp-learn-card">
+          <div class="sp-learn-icon">☸</div>
+          <div class="sp-learn-name">CKA Prep</div>
+          <div class="sp-learn-sub">Kubernetes Administrator</div>
+        </div>
+        <div class="sp-learn-card">
+          <div class="sp-learn-icon">☁</div>
+          <div class="sp-learn-name">AWS SAA</div>
+          <div class="sp-learn-sub">Solutions Architect Assoc.</div>
+        </div>
+        <div class="sp-learn-card">
+          <div class="sp-learn-icon">⚙</div>
+          <div class="sp-learn-name">K8s Operators</div>
+          <div class="sp-learn-sub">Custom Resource Defs</div>
+        </div>
+        <div class="sp-learn-card">
+          <div class="sp-learn-icon">🌐</div>
+          <div class="sp-learn-name">CNCF Contrib</div>
+          <div class="sp-learn-sub">Open-source ecosystem</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /sp-body -->
+</aside>
 
 <script src="script.js"></script>
 </body>

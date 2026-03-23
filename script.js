@@ -3,8 +3,8 @@
 ═══════════════════════════════════════════════════ */
 (function() {
   if (window.innerWidth <= 900) return;
-  const GRAVITY_R  = 140;  // attraction radius px
-  const STRENGTH   = 0.22; // pull force
+  const GRAVITY_R  = 140;
+  const STRENGTH   = 0.22;
 
   let mx = -9999, my = -9999;
   document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive:true });
@@ -32,7 +32,6 @@
 ═══════════════════════════════════════════════════ */
 (function() {
   if (window.innerWidth <= 900) return;
-  // Draw burst particles on a dedicated canvas
   const c = document.createElement('canvas');
   c.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:6;';
   document.body.appendChild(c);
@@ -44,7 +43,6 @@
   const COLS   = ['rgba(0,212,255,','rgba(124,58,237,','rgba(16,185,129,','rgba(255,255,255,'];
 
   document.addEventListener('click', e => {
-    // Don't explode on interactive elements
     if (e.target.closest('button,a,.ios-app,.ttt-cell,input,textarea,.aw-back')) return;
     const count = 22 + Math.floor(Math.random() * 10);
     for (let i = 0; i < count; i++) {
@@ -66,8 +64,8 @@
     for (let i = bursts.length - 1; i >= 0; i--) {
       const b = bursts[i];
       b.x  += b.vx; b.y  += b.vy;
-      b.vy += 0.12;       // gravity
-      b.vx *= 0.97;       // drag
+      b.vy += 0.12;
+      b.vx *= 0.97;
       b.alpha -= 0.032;
       if (b.alpha <= 0) { bursts.splice(i, 1); continue; }
       ctx.beginPath();
@@ -89,11 +87,11 @@
   if (!scrollMain) return;
 
   const ZONES = [
-    { id: 'about',    color: 'rgba(0,212,255,'   },  // cyan
-    { id: 'projects', color: 'rgba(124,58,237,'  },  // purple
-    { id: 'skills',   color: 'rgba(16,185,129,'  },  // green
-    { id: 'terminal', color: 'rgba(0,212,255,'   },  // cyan
-    { id: 'contact',  color: 'rgba(124,58,237,'  },  // purple
+    { id: 'about',    color: 'rgba(0,212,255,'   },
+    { id: 'projects', color: 'rgba(124,58,237,'  },
+    { id: 'skills',   color: 'rgba(16,185,129,'  },
+    { id: 'terminal', color: 'rgba(0,212,255,'   },
+    { id: 'contact',  color: 'rgba(124,58,237,'  },
   ];
 
   let currentColor  = 'rgba(0,212,255,';
@@ -112,7 +110,6 @@
     transProgress = Math.min(transProgress + 0.008, 1);
     if (transProgress < 1) transId = requestAnimationFrame(animateTransition);
     else transId = null;
-    // Apply to all particles
     const pts = window._pts;
     if (!pts) return;
     pts.forEach(p => {
@@ -147,14 +144,12 @@
   let W = c.width = window.innerWidth, H = c.height = window.innerHeight;
   window.addEventListener('resize', () => { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }, {passive:true});
 
-  // Static star positions (percentage-based so they scale)
   const STARS = [
     {x:.12,y:.18},{x:.25,y:.08},{x:.38,y:.22},{x:.18,y:.35},{x:.30,y:.45},
     {x:.45,y:.12},{x:.55,y:.28},{x:.65,y:.15},{x:.72,y:.38},{x:.60,y:.48},
     {x:.80,y:.22},{x:.88,y:.12},{x:.78,y:.55},{x:.50,y:.60},{x:.35,y:.70},
     {x:.20,y:.65},{x:.10,y:.55},{x:.42,y:.80},{x:.68,y:.72},{x:.85,y:.68},
   ];
-  // Edges between stars (index pairs)
   const EDGES = [
     [0,1],[1,2],[2,4],[0,3],[3,4],[2,5],[5,6],[6,7],[7,8],[6,9],
     [8,10],[10,11],[10,12],[9,12],[9,13],[4,13],[13,14],[3,15],[15,16],
@@ -165,7 +160,7 @@
   function draw() {
     ctx.clearRect(0, 0, W, H);
     t += 0.004;
-    const breathe = 1 + Math.sin(t) * 0.06; // ±6% size breath
+    const breathe = 1 + Math.sin(t) * 0.06;
 
     EDGES.forEach(([a, b]) => {
       const ax = STARS[a].x * W * breathe + (1-breathe)*W*0.5;
@@ -244,7 +239,6 @@
     warpRaf = requestAnimationFrame(warpLoop);
   }
 
-  // Hook into all nav links and progress dots
   document.addEventListener('click', e => {
     const link = e.target.closest('.nav-link, .pdot, .scroll-cta');
     if (link) triggerWarp();
@@ -290,7 +284,6 @@
   }
 
   island.addEventListener('mouseenter', expand);
-  // Also auto-show every 15s
   setInterval(expand, 15000);
 })();
 
@@ -300,12 +293,10 @@
 (function() {
   const wall = document.querySelector('.lock-wallpaper');
   if (!wall) return;
-  // Override with an animated version
   wall.style.cssText += `
     animation: kenBurns 12s ease-in-out infinite alternate;
     transform-origin: center center;
   `;
-  // Inject keyframes if not already present
   if (!document.getElementById('kbStyle')) {
     const s = document.createElement('style');
     s.id = 'kbStyle';
@@ -339,7 +330,6 @@
     transition: left .08s ease, top .08s ease, opacity .4s;
     opacity:0;
   `;
-  // Must be inside the section for absolute positioning
   skillsSection.style.position = 'relative';
   skillsSection.appendChild(spotlight);
 
@@ -364,7 +354,6 @@
    NEW-9. MORPHING SECTION DIVIDERS
 ═══════════════════════════════════════════════════ */
 (function() {
-  // Inject SVG wave dividers between each section
   const sections = document.querySelectorAll('.scroll-section');
   sections.forEach((sec, i) => {
     if (i === sections.length - 1) return;
@@ -410,7 +399,6 @@
     portalCooldown = true;
     iris.style.opacity = '1';
     iris.style.transform = 'translate(-50%,-50%) scale(0.015)';
-    // Force reflow
     iris.getBoundingClientRect();
     iris.style.transition = 'transform 0.38s cubic-bezier(.77,0,.18,1), opacity 0.3s';
     iris.style.transform = 'translate(-50%,-50%) scale(1)';
@@ -428,6 +416,557 @@
 })();
 
 /* ═══════════════════════════════════════════════════
+   ORBITAL SKILLS SYSTEM — v3 (freeze bug fixed)
+
+   ROOT CAUSES FIXED:
+   1. showDetail/hideDetail were called synchronously inside the RAF draw()
+      loop, triggering DOM layout reads (classList.contains) and writes
+      (classList.add, style assignments) mid-frame — causing layout thrash
+      that froze the canvas animation.
+   2. hideDetail() did a classList.contains READ every frame even when nothing
+      changed, constantly forcing style resolution.
+   3. mouseleave reset prevHoveredNode to null, causing showDetail to re-fire
+      on the very next hover of the same node (double transition glitch).
+   4. cursor style was set in mousemove reading stale hoveredNode from last frame.
+
+   FIX STRATEGY:
+   - All DOM reads/writes are batched into a single deferred RAF callback
+     (_flushDetail) that runs AFTER the canvas RAF completes.
+   - draw() only does pure canvas operations + sets a pending intent flag.
+   - mouseleave no longer resets prevHoveredNode (canvas state variable);
+     it only resets mouse coords and clears pins.
+   - Cursor is set inside draw() after hit-testing, not in mousemove.
+═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   ORBITAL SKILLS SYSTEM — v4 (hover freeze fully fixed)
+
+   ROOT CAUSES FIXED (v4):
+   1. scheduleDetailFlush compared node references with === against
+      pendingDetailNode, but pendingDetailNode was initialized as
+      `undefined` — so the FIRST hover always passed the guard,
+      but subsequent hovers on the SAME node after mouseleave
+      could stall because lastDisplayNode was never cleared properly.
+   2. The _flushDetail function's early-return when
+      lastDisplayNode === node prevented re-showing after hide,
+      because lastDisplayNode wasn't reliably nulled on hide
+      (the setTimeout in the old collapse pattern was removed but
+      the logic ghost remained).
+   3. Most critically: `scheduleDetailFlush` used strict equality
+      `node === pendingDetailNode` as a dedup guard. When draw()
+      calls it every frame with the SAME node ref, this is fine.
+      But when hoveredNode flips between null and a node rapidly
+      (edge of hit radius), the setTimeout(0) flush races with
+      the next draw() frame — the pending flag gets stuck as the
+      old value while the new intent is already different.
+      FIX: Remove the dedup guard entirely. Let _flushDetail
+      itself be the idempotency gate (check lastDisplayNode).
+      The setTimeout(0) already coalesces multiple calls per frame.
+   4. The `animateTransition` in NEW-3 (color zones) was calling
+      requestAnimationFrame in a separate loop that could interfere
+      with the particle system's `_pts` array mid-iteration on
+      some browsers. Wrapped the colorOverride write in a flag check.
+═══════════════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('orbitalCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const RINGS = [
+    {
+      radius: 0.17, speed: 0.00055, color: [0,212,255],
+      label: 'Cloud & DevOps',
+      skills: [
+        { name:'Docker',         pct:0.90, used:'K8s Microservices · All projects'        },
+        { name:'Kubernetes',     pct:0.80, used:'CNCF contributions · Codtech internship' },
+        { name:'AWS',            pct:0.85, used:'Codtech internship · Personal infra'     },
+        { name:'Linux',          pct:0.85, used:'Daily driver · Scripting · Server admin' },
+      ],
+    },
+    {
+      radius: 0.29, speed: 0.00038, color: [124,58,237],
+      label: 'CI/CD & IaC',
+      skills: [
+        { name:'GitHub Actions', pct:0.88, used:'Automated CI/CD · Secure Pipeline'      },
+        { name:'Terraform',      pct:0.75, used:'IaC patterns · Multi-env deploys'       },
+        { name:'Jenkins',        pct:0.78, used:'Automated CI/CD · Codtech internship'   },
+        { name:'Helm',           pct:0.72, used:'K8s Microservices · Package management' },
+        { name:'ArgoCD',         pct:0.55, used:'GitOps exploration · CNCF ecosystem'    },
+      ],
+    },
+    {
+      radius: 0.41, speed: 0.00025, color: [16,185,129],
+      label: 'Languages',
+      skills: [
+        { name:'Python',         pct:0.80, used:'Automation scripts · Data tasks'        },
+        { name:'Bash',           pct:0.85, used:'CI/CD scripts · Linux automation'       },
+        { name:'YAML',           pct:0.92, used:'K8s manifests · Docker Compose'         },
+        { name:'C / C++',        pct:0.65, used:'MCET academics · Competitive prog.'     },
+        { name:'Go',             pct:0.40, used:'Learning for K8s operators'             },
+      ],
+    },
+    {
+      radius: 0.53, speed: 0.00016, color: [255,189,46],
+      label: 'Tools',
+      skills: [
+        { name:'Prometheus',     pct:0.70, used:'Monitoring pipelines · SRE learning'    },
+        { name:'Grafana',        pct:0.68, used:'Dashboards · Observability'             },
+        { name:'Ansible',        pct:0.65, used:'Config management · Automation'         },
+        { name:'Git',            pct:0.92, used:'Every project · Open-source contrib.'   },
+        { name:'ELK Stack',      pct:0.60, used:'Log analysis · Debugging pipelines'    },
+        { name:'nginx',          pct:0.62, used:'Reverse proxy · Web servers'            },
+      ],
+    },
+  ];
+
+  const c = ([r,g,b], a=1) => `rgba(${r},${g},${b},${a})`;
+
+  const nodes = [];
+  RINGS.forEach((ring, ri) => {
+    ring.skills.forEach((sk, si) => {
+      const total = ring.skills.length;
+      nodes.push({
+        ring: ri, skill: sk,
+        baseAngle: (si / total) * Math.PI * 2,
+        x:0, y:0, prevX:[], prevY:[],
+        r: 5 + sk.pct * 6.5,
+        color: ring.color,
+        speed: ring.speed * (ri % 2 === 0 ? 1 : -1),
+        hovered:false, pinned:false,
+        entryProgress: 0,
+        entryDelay: ri * 0.35 + si * 0.08,
+        bursts: [],
+        wasHovered: false,
+      });
+    });
+  });
+
+  let W, H, CX, CY, MAX_R;
+  let hoveredNode = null;
+  let pinnedNode = null;
+  // Track what's currently shown so we don't re-trigger DOM writes
+  let lastDisplayNode = null;
+  // Track what we WANT to show — set by draw(), consumed by flush
+  let pendingDetailNode = null;
+  let detailFlushScheduled = false;
+
+  let mouseX = -9999, mouseY = -9999;
+  let t = 0, startT = null;
+  let animating = false;
+
+  // Cache DOM refs once
+  const detailEl = document.getElementById('orbitalDetail');
+  const elName   = document.getElementById('odName');
+  const elLvl    = document.getElementById('odLevel');
+  const elFill   = document.getElementById('odFill');
+  const elUsed   = document.getElementById('odUsed');
+
+ function resize() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const size = Math.min(rect.width, 560); // was 520
+  const dpr  = window.devicePixelRatio || 1;
+  canvas.width  = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width  = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+  W = H = size;
+  CX = CY = size / 2;
+  MAX_R = size * 0.5 * 0.82; // was 0.90 — pull rings inward so they don't touch edges
+}
+
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function getPos(node, time, radiusScale) {
+    radiusScale = radiusScale || 1;
+    const ring = RINGS[node.ring];
+    const r = ring.radius * MAX_R * 2 * radiusScale;
+    const a = node.baseAngle + time * node.speed * 1000;
+    return { x: CX + Math.cos(a) * r, y: CY + Math.sin(a) * r };
+  }
+
+  function levelLabel(pct) {
+    if (pct >= 0.88) return 'Expert';
+    if (pct >= 0.75) return 'Advanced';
+    if (pct >= 0.60) return 'Proficient';
+    if (pct >= 0.40) return 'Intermediate';
+    return 'Learning';
+  }
+
+  /* ─────────────────────────────────────────────────
+     DETAIL PANEL — fully decoupled from canvas RAF
+  ───────────────────────────────────────────────── */
+  function requestDetailUpdate(node) {
+    // Always update the pending target. No dedup guard here —
+    // let _flushDetail handle idempotency via lastDisplayNode.
+    pendingDetailNode = node;
+    if (!detailFlushScheduled) {
+      detailFlushScheduled = true;
+      setTimeout(_flushDetail, 0);
+    }
+  }
+
+  function _flushDetail() {
+    detailFlushScheduled = false;
+    if (!detailEl) return;
+
+    const node = pendingDetailNode;
+
+    // HIDE case
+    if (!node) {
+      if (lastDisplayNode !== null) {
+        detailEl.classList.remove('show');
+        lastDisplayNode = null;
+      }
+      return;
+    }
+
+    // SHOW case — skip if already showing this exact node
+    if (lastDisplayNode === node) return;
+    lastDisplayNode = node;
+
+    elName.textContent = node.skill.name;
+    elLvl.textContent  = levelLabel(node.skill.pct) + ' · ' + Math.round(node.skill.pct * 100) + '%';
+    elUsed.textContent = node.skill.used;
+    const [r,g,b] = node.color;
+    elFill.style.background = `linear-gradient(90deg, rgb(${r},${g},${b}), rgba(${r},${g},${b},0.5))`;
+    elFill.style.boxShadow  = `0 0 10px rgba(${r},${g},${b},0.6)`;
+    elFill.style.width = '0%';
+    detailEl.classList.add('show');
+    // Trigger bar animation on next paint
+    requestAnimationFrame(() => {
+      if (lastDisplayNode === node) {
+        elFill.style.width = (node.skill.pct * 100) + '%';
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────────────
+     DRAW LOOP — pure canvas, zero DOM reads/writes
+  ───────────────────────────────────────────────── */
+  function draw(ts) {
+    if (!animating) return;
+    if (!startT) startT = ts;
+    const elapsed = (ts - startT) * 0.001;
+    t = ts * 0.001;
+
+    ctx.save();
+    ctx.clearRect(0, 0, W, H);
+
+    // Deep glow
+    const bg = ctx.createRadialGradient(CX, CY, 0, CX, CY, MAX_R * 1.1);
+    bg.addColorStop(0,   'rgba(0,212,255,0.04)');
+    bg.addColorStop(0.5, 'rgba(7,13,26,0)');
+    bg.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Rings
+    RINGS.forEach((ring, ri) => {
+      const r = ring.radius * MAX_R * 2;
+
+      ctx.beginPath();
+      ctx.arc(CX, CY, r, 0, Math.PI * 2);
+      ctx.strokeStyle = c(ring.color, 0.1);
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 10]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const skills = ring.skills;
+      const avgPct = skills.reduce((s, sk) => s + sk.pct, 0) / skills.length;
+      const arcLen = avgPct * Math.PI * 2;
+      const arcStart = -Math.PI / 2 + t * ring.speed * 1000 * 0.3;
+      ctx.beginPath();
+      ctx.arc(CX, CY, r, arcStart, arcStart + arcLen);
+      ctx.strokeStyle = c(ring.color, 0.45);
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = c(ring.color, 0.6);
+      ctx.shadowBlur = 8;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      const scanA = t * ring.speed * 4000 * (ri % 2 === 0 ? 1 : -1);
+      const scanLen = 0.35;
+      ctx.beginPath();
+      ctx.arc(CX, CY, r, scanA, scanA + scanLen);
+      const scanGrad = ctx.createLinearGradient(
+        CX + Math.cos(scanA) * r, CY + Math.sin(scanA) * r,
+        CX + Math.cos(scanA + scanLen) * r, CY + Math.sin(scanA + scanLen) * r
+      );
+      scanGrad.addColorStop(0, c(ring.color, 0));
+      scanGrad.addColorStop(1, c(ring.color, 0.6));
+      ctx.strokeStyle = scanGrad;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const labelA = -Math.PI / 2;
+      const lx = CX + Math.cos(labelA) * r;
+      const ly = CY + Math.sin(labelA) * r - 8;
+      ctx.font = "500 9px 'JetBrains Mono', monospace";
+      ctx.fillStyle = c(ring.color, 0.55);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(ring.label, lx, ly);
+    });
+
+    // Nodes — hit-test resets each frame
+    hoveredNode = null;
+
+    nodes.forEach(node => {
+      const ep = Math.min(1, Math.max(0, (elapsed - node.entryDelay) / 0.7));
+      node.entryProgress = easeOut(ep);
+      if (ep <= 0) return;
+
+      const pos = getPos(node, t, node.entryProgress);
+      node.x = pos.x; node.y = pos.y;
+
+      node.prevX.push(node.x);
+      node.prevY.push(node.y);
+      if (node.prevX.length > 18) { node.prevX.shift(); node.prevY.shift(); }
+
+      // Hit test
+      const dx = mouseX - node.x, dy = mouseY - node.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      node.hovered = dist < node.r + 16;
+      if (node.hovered) hoveredNode = node;
+
+      const isActive = node.hovered || node === pinnedNode;
+
+      // Comet tail
+      if (node.prevX.length > 2) {
+        for (let i = 1; i < node.prevX.length; i++) {
+          const frac = i / node.prevX.length;
+          const tailAlpha = frac * (isActive ? 0.5 : 0.22);
+          const tailR = node.r * frac * 0.55;
+          ctx.beginPath();
+          ctx.arc(node.prevX[i], node.prevY[i], Math.max(0.5, tailR), 0, Math.PI * 2);
+          ctx.fillStyle = c(node.color, tailAlpha);
+          ctx.fill();
+        }
+      }
+
+      // Outer glow
+      const glowR = node.r * (isActive ? 4.5 : 2.8);
+      const grd = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowR);
+      grd.addColorStop(0, c(node.color, isActive ? 0.4 : 0.15));
+      grd.addColorStop(1, c(node.color, 0));
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, glowR, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      // Node body
+      const drawR = node.r * (isActive ? 1.4 : 1) * node.entryProgress;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, drawR, 0, Math.PI * 2);
+      const nGrd = ctx.createRadialGradient(
+        node.x - drawR * 0.3, node.y - drawR * 0.3, 0,
+        node.x, node.y, drawR
+      );
+      nGrd.addColorStop(0, c(node.color, isActive ? 1 : 0.9));
+      nGrd.addColorStop(0.6, c(node.color, isActive ? 0.8 : 0.65));
+      nGrd.addColorStop(1,   c(node.color, 0.3));
+      ctx.fillStyle = nGrd;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, drawR, 0, Math.PI * 2);
+      ctx.strokeStyle = isActive ? 'rgba(255,255,255,0.8)' : c(node.color, 0.5);
+      ctx.lineWidth = isActive ? 1.5 : 0.8;
+      if (isActive) { ctx.shadowColor = c(node.color, 0.9); ctx.shadowBlur = 12; }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Progress arc
+      const pArcLen = node.skill.pct * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, drawR + 4, -Math.PI/2, -Math.PI/2 + pArcLen);
+      ctx.strokeStyle = c(node.color, isActive ? 0.9 : 0.4);
+      ctx.lineWidth = isActive ? 2 : 1.2;
+      ctx.stroke();
+
+      // Label
+      const ldx = node.x - CX, ldy = node.y - CY;
+      const lLen = Math.sqrt(ldx*ldx + ldy*ldy) || 1;
+      const lx3 = node.x + (ldx/lLen) * (drawR + 13);
+      const ly3 = node.y + (ldy/lLen) * (drawR + 13);
+
+      ctx.font = `${isActive ? '600' : '400'} ${isActive ? 11 : 9}px 'JetBrains Mono', monospace`;
+      ctx.fillStyle = isActive ? '#fff' : c(node.color, 0.8);
+      ctx.textAlign = lx3 < CX ? 'right' : 'left';
+      ctx.textBaseline = ly3 < CY ? 'bottom' : 'top';
+      ctx.fillText(node.skill.name, lx3, ly3);
+
+      // Micro burst on hover entry
+      if (node.hovered && !node.wasHovered) {
+        for (let i = 0; i < 8; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const spd = Math.random() * 2 + 1;
+          node.bursts.push({ x:node.x, y:node.y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd, life:1 });
+        }
+      }
+      node.wasHovered = node.hovered;
+
+      // Update bursts
+      for (let bi = node.bursts.length - 1; bi >= 0; bi--) {
+        const b = node.bursts[bi];
+        b.x += b.vx; b.y += b.vy; b.life -= 0.06; b.vx *= 0.92; b.vy *= 0.92;
+        if (b.life <= 0) {
+          node.bursts.splice(bi, 1);
+          continue;
+        }
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 1.5 * b.life, 0, Math.PI * 2);
+        ctx.fillStyle = c(node.color, b.life * 0.9);
+        ctx.fill();
+      }
+    });
+
+    // Connection beam
+    const activeNode = hoveredNode || pinnedNode;
+    if (activeNode) {
+      const [r2,g2,b2] = activeNode.color;
+      const beamGrad = ctx.createLinearGradient(CX, CY, activeNode.x, activeNode.y);
+      beamGrad.addColorStop(0,   `rgba(${r2},${g2},${b2},0)`);
+      beamGrad.addColorStop(0.4, `rgba(${r2},${g2},${b2},0.3)`);
+      beamGrad.addColorStop(1,   `rgba(${r2},${g2},${b2},0.7)`);
+      ctx.beginPath();
+      ctx.moveTo(CX, CY);
+      ctx.lineTo(activeNode.x, activeNode.y);
+      ctx.strokeStyle = beamGrad;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      nodes.forEach(sib => {
+        if (sib.ring !== activeNode.ring || sib === activeNode) return;
+        if (sib.entryProgress < 0.5) return;
+        const sg = ctx.createLinearGradient(activeNode.x, activeNode.y, sib.x, sib.y);
+        sg.addColorStop(0,   c(activeNode.color, 0.3));
+        sg.addColorStop(1,   c(activeNode.color, 0.06));
+        ctx.beginPath();
+        ctx.moveTo(activeNode.x, activeNode.y);
+        ctx.lineTo(sib.x, sib.y);
+        ctx.strokeStyle = sg;
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+      });
+    }
+
+    // Core
+    const pulse = 0.5 + Math.sin(t * 1.6) * 0.5;
+    const coreR = 28;
+
+    [0.06, 0.12, 0.22].forEach((a, i) => {
+      const gr = coreR * (4 - i) * (1 + pulse * 0.12);
+      const gg = ctx.createRadialGradient(CX, CY, 0, CX, CY, gr);
+      gg.addColorStop(0, `rgba(0,212,255,${a})`);
+      gg.addColorStop(1, 'rgba(0,212,255,0)');
+      ctx.beginPath();
+      ctx.arc(CX, CY, gr, 0, Math.PI * 2);
+      ctx.fillStyle = gg;
+      ctx.fill();
+    });
+
+    ctx.beginPath();
+    ctx.arc(CX, CY, coreR, 0, Math.PI * 2);
+    const coreBodyGrd = ctx.createRadialGradient(CX-8, CY-8, 0, CX, CY, coreR);
+    coreBodyGrd.addColorStop(0, 'rgba(0,40,60,0.98)');
+    coreBodyGrd.addColorStop(1, 'rgba(0,15,25,0.98)');
+    ctx.fillStyle = coreBodyGrd;
+    ctx.fill();
+
+    const spinA = t * 1.2;
+    for (let i = 0; i < 8; i++) {
+      const a = spinA + (i / 8) * Math.PI * 2;
+      const dotR = coreR * 0.72;
+      const dotX = CX + Math.cos(a) * dotR;
+      const dotY = CY + Math.sin(a) * dotR;
+      const dotAlpha = 0.3 + 0.5 * Math.pow(Math.sin(a - spinA * 0.5) * 0.5 + 0.5, 2);
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,212,255,${dotAlpha})`;
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    ctx.arc(CX, CY, coreR, 0, Math.PI * 2);
+    const borderGrd = ctx.createLinearGradient(CX-coreR, CY-coreR, CX+coreR, CY+coreR);
+    borderGrd.addColorStop(0, 'rgba(0,212,255,0.9)');
+    borderGrd.addColorStop(0.5, 'rgba(124,58,237,0.6)');
+    borderGrd.addColorStop(1, 'rgba(0,212,255,0.9)');
+    ctx.strokeStyle = borderGrd;
+    ctx.lineWidth = 1.8;
+    ctx.shadowColor = 'rgba(0,212,255,0.8)';
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.font = "700 14px 'Syne', sans-serif";
+    ctx.fillStyle = 'rgba(0,212,255,1)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('ASP', CX, CY);
+
+    // Cursor update — safe, doesn't trigger layout
+    canvas.style.cursor = hoveredNode ? 'pointer' : 'default';
+
+    // Schedule detail panel update OUTSIDE this frame
+    requestDetailUpdate(hoveredNode || pinnedNode || null);
+
+    ctx.restore();
+    requestAnimationFrame(draw);
+  }
+
+  /* ─────────────────────────────────────────────────
+     EVENTS
+  ───────────────────────────────────────────────── */
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    mouseX = (e.clientX - rect.left) * (canvas.width / dpr / rect.width);
+    mouseY = (e.clientY - rect.top)  * (canvas.height / dpr / rect.height);
+  }, { passive: true });
+
+  canvas.addEventListener('mouseleave', () => {
+    mouseX = -9999; mouseY = -9999;
+    pinnedNode = null;
+    // Don't touch lastDisplayNode — let the next draw() + flush handle it
+    requestDetailUpdate(null);
+  });
+
+  canvas.addEventListener('click', () => {
+    if (hoveredNode) {
+      pinnedNode = (pinnedNode === hoveredNode) ? null : hoveredNode;
+    } else {
+      pinnedNode = null;
+    }
+    requestDetailUpdate(hoveredNode || pinnedNode || null);
+  });
+
+  /* ─────────────────────────────────────────────────
+     START
+  ───────────────────────────────────────────────── */
+  const isMobile = window.innerWidth <= 900;
+  const scrollRoot = isMobile ? null : document.getElementById('scrollMain');
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !animating) {
+      animating = true;
+      startT = null;
+      resize();
+      requestAnimationFrame(draw);
+      obs.disconnect();
+    }
+  }, { root: scrollRoot, threshold: 0.15 });
+
+  const skillsSection = document.getElementById('skills');
+  if (skillsSection) obs.observe(skillsSection);
+  window.addEventListener('resize', () => { if (animating) resize(); }, { passive: true });
+})();
+
+/* ═══════════════════════════════════════════════════
    F. MATRIX RAIN COLUMN (right edge, DevOps chars)
 ═══════════════════════════════════════════════════ */
 (function() {
@@ -441,7 +980,6 @@
 
   const CHARS = '01kubectl∞{}[]|><∂∑λdockerterraformhelmawsk8s∇≡∈∉⟨⟩';
   const FONT_SIZE = 13;
-  // Only 3 columns on the far right edge
   const COL_COUNT = 3;
   const cols = Array.from({ length: COL_COUNT }, (_, i) => ({
     x: W - (i + 1) * (FONT_SIZE + 6),
@@ -455,13 +993,11 @@
 
     cols.forEach((col, ci) => {
       const colX = W - (ci + 1) * (FONT_SIZE + 6);
-      // Draw ~20 chars as a vertical strip
       for (let row = 0; row < 22; row++) {
         const charY = ((col.y - row * FONT_SIZE + H) % H);
         const distFromHead = row;
         const alpha = Math.max(0, 0.22 - distFromHead * 0.01);
         const char = CHARS[Math.floor(Math.random() * CHARS.length)];
-        // Head char is bright cyan
         const color = row === 0
           ? `rgba(180,255,255,${alpha * 2.5})`
           : `rgba(0,212,255,${alpha})`;
@@ -471,7 +1007,6 @@
       col.y = (col.y + col.speed) % H;
     });
 
-    // Update column x positions if window resized
     cols.forEach((col, i) => { col.x = W - (i + 1) * (FONT_SIZE + 6); });
     requestAnimationFrame(draw);
   }
@@ -483,7 +1018,6 @@
 ═══════════════════════════════════════════════════ */
 (function() {
   if (window.innerWidth <= 900) return;
-  // Draw on a dedicated overlay above keywords
   const overlay = document.createElement('canvas');
   overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:4;';
   document.body.appendChild(overlay);
@@ -494,7 +1028,6 @@
   window.addEventListener('resize', resize, { passive: true });
   document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; }, { passive: true });
 
-  // Access the particle points from particleCanvas (we'll just generate virtual nodes)
   const NODES = Array.from({ length: 40 }, () => ({
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
@@ -508,7 +1041,6 @@
   function draw() {
     ctx.clearRect(0, 0, W, H);
 
-    // Update nodes
     NODES.forEach(n => {
       n.x += n.vx; n.y += n.vy;
       if (n.y < -10) { n.y = H + 10; n.x = Math.random() * W; }
@@ -516,13 +1048,11 @@
       if (n.x > W + 10) n.x = -10;
     });
 
-    // Draw constellation lines near mouse
     const nearby = NODES.filter(n => {
       const dx = n.x - mouseX, dy = n.y - mouseY;
       return dx*dx + dy*dy < MOUSE_RADIUS * MOUSE_RADIUS;
     });
 
-    // Connect nearby nodes to each other
     for (let i = 0; i < nearby.length; i++) {
       for (let j = i + 1; j < nearby.length; j++) {
         const dx = nearby[i].x - nearby[j].x;
@@ -538,7 +1068,6 @@
           ctx.stroke();
         }
       }
-      // Line from node to mouse
       const dx = nearby[i].x - mouseX;
       const dy = nearby[i].y - mouseY;
       const d  = Math.sqrt(dx*dx + dy*dy);
@@ -627,7 +1156,6 @@
     });
   });
 
-  // Sync active dot with section observer
   const sections = document.querySelectorAll('.scroll-section');
   const sObs = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -677,7 +1205,6 @@
     badge.classList.add('show');
     setTimeout(() => badge.classList.remove('show'), 4000);
   }
-  // First show after 8s (home screen appears ~7s), then every 30s
   setTimeout(() => { showBadge(); setInterval(showBadge, 30000); }, 8000);
 })();
 
@@ -690,7 +1217,7 @@
 
   function sweep() {
     ref.classList.remove('sweep');
-    void ref.offsetWidth; // reflow to restart animation
+    void ref.offsetWidth;
     ref.classList.add('sweep');
   }
   setTimeout(() => { sweep(); setInterval(sweep, 10000); }, 5000);
@@ -705,7 +1232,6 @@
   if (!overlay || !canvas) return;
   const ctx = canvas.getContext('2d');
 
-  // ── Konami code detector ──────────────────────
   const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown',
                   'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
   let kIdx = 0;
@@ -719,7 +1245,6 @@
     }
   });
 
-  // ── Matrix rain for konami ────────────────────
   let konamiRaf = null;
   function triggerKonami() {
     canvas.width  = window.innerWidth;
@@ -744,7 +1269,6 @@
     }
     draw();
 
-    // Close on click or after 5s
     const close = () => {
       overlay.classList.remove('active');
       cancelAnimationFrame(konamiRaf);
@@ -755,8 +1279,6 @@
     setTimeout(close, 5000);
   }
 
-  // ── "sudo hire me" in interactive terminal ────
-  // Patch the itermRun to intercept this command
   const _origRun = window.itermRun;
   window.itermRun = function(cmd) {
     if (cmd.trim().toLowerCase() === 'sudo hire me') {
@@ -766,7 +1288,6 @@
     }
   };
 
-  // Also patch the terminal input listener
   setTimeout(() => {
     const input = document.getElementById('itermInput');
     if (!input) return;
@@ -780,7 +1301,6 @@
   }, 1000);
 
   function triggerSudoHireMe() {
-    // Write to terminal output first
     const output = document.getElementById('itermOutput');
     if (output) {
       const addLine = (cls, html) => {
@@ -802,7 +1322,6 @@
       addLine('out-head', '🎉 HIRE SUCCESSFUL — Contact: achansaipranay3@gmail.com');
       addLine('spacer',   '');
     }
-    // Then trigger a celebratory konami-style overlay
     setTimeout(triggerKonami, 600);
   }
 })();
@@ -819,7 +1338,6 @@
   resize();
   window.addEventListener('resize', resize, { passive: true });
 
-  // Each blob is a slow-drifting radial gradient
   const blobs = [
     { x:0.15, y:0.3,  r:0.38, hue:185, speed:0.00018, ox:0, oy:0, phase:0    },
     { x:0.70, y:0.2,  r:0.32, hue:270, speed:0.00024, ox:0, oy:0, phase:2.1  },
@@ -834,7 +1352,6 @@
     t += 1;
 
     blobs.forEach(b => {
-      // Lissajous drift — each blob traces a slow figure-8
       const bx = (b.x + Math.sin(t * b.speed * 1.3 + b.phase) * 0.14) * W;
       const by = (b.y + Math.cos(t * b.speed       + b.phase) * 0.10) * H;
       const br = b.r * Math.min(W, H);
@@ -862,11 +1379,8 @@
    B. SHOOTING STARS
 ═══════════════════════════════════════════════════ */
 (function() {
-  const canvas = document.getElementById('particleCanvas'); // reuse — drawn on top
-  // We'll draw onto the keywords canvas to avoid particle interference
   const sc = document.getElementById('keywordsCanvas');
   if (!sc) return;
-  // Actually draw on a new transparent overlay
   const overlay = document.createElement('canvas');
   overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:3;';
   document.body.appendChild(overlay);
@@ -879,8 +1393,7 @@
   const stars = [];
 
   function spawnStar() {
-    // Start from top-left region, travel diagonally down-right
-    const angle = (Math.random() * 20 + 20) * Math.PI / 180; // 20–40° from horizontal
+    const angle = (Math.random() * 20 + 20) * Math.PI / 180;
     const speed = Math.random() * 6 + 7;
     stars.push({
       x:     Math.random() * W * 0.7,
@@ -893,12 +1406,13 @@
     });
   }
 
-  // Spawn a star every 3.5–7s
   function scheduleStar() {
     spawnStar();
     setTimeout(scheduleStar, Math.random() * 3500 + 3500);
   }
   setTimeout(scheduleStar, 1500);
+
+  function spd(s) { return Math.hypot(s.vx, s.vy); }
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
@@ -911,10 +1425,10 @@
         stars.splice(i, 1); continue;
       }
 
-      // Tail gradient
+      const sp = spd(s);
       const grad = ctx.createLinearGradient(
         s.x, s.y,
-        s.x - s.vx * (s.len / speed(s)), s.y - s.vy * (s.len / speed(s))
+        s.x - s.vx * (s.len / sp), s.y - s.vy * (s.len / sp)
       );
       grad.addColorStop(0,   `rgba(255,255,255,${s.alpha})`);
       grad.addColorStop(0.3, `rgba(0,212,255,${s.alpha * 0.6})`);
@@ -926,12 +1440,11 @@
       ctx.lineCap     = 'round';
       ctx.moveTo(s.x, s.y);
       ctx.lineTo(
-        s.x - s.vx * (s.len / Math.hypot(s.vx, s.vy)),
-        s.y - s.vy * (s.len / Math.hypot(s.vx, s.vy))
+        s.x - s.vx * (s.len / sp),
+        s.y - s.vy * (s.len / sp)
       );
       ctx.stroke();
 
-      // Bright head dot
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.width * 1.5, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
@@ -939,7 +1452,6 @@
     }
     requestAnimationFrame(draw);
   }
-  function speed(s) { return Math.hypot(s.vx, s.vy); }
   draw();
 })();
 
@@ -950,12 +1462,10 @@
   const el = document.getElementById('glitchName');
   if (!el) return;
 
-  // Set the data-text so ::before / ::after CSS can use attr()
   el.setAttribute('data-text', el.textContent);
 
-  // Random periodic "hard glitch" shake — supplements the CSS animation
   function scheduleGlitch() {
-    const delay = Math.random() * 6000 + 4000; // every 4–10s
+    const delay = Math.random() * 6000 + 4000;
     setTimeout(() => {
       el.classList.add('glitching');
       setTimeout(() => el.classList.remove('glitching'), 150);
@@ -982,7 +1492,7 @@
 
     statNums.forEach(el => {
       const target   = parseInt(el.dataset.target, 10);
-      const duration = 1800 + Math.random() * 400; // slightly randomised
+      const duration = 1800 + Math.random() * 400;
       const start    = performance.now();
 
       el.classList.add('counting');
@@ -1004,7 +1514,6 @@
     });
   }
 
-  // Fire when stats bar scrolls into view
   const bar = document.querySelector('.stats-bar');
   if (!bar) return;
 
@@ -1027,7 +1536,7 @@
 (function() {
   if (window.innerWidth <= 900) return;
 
-  const MAX_TILT = 12; // degrees
+  const MAX_TILT = 12;
   const PERSPECTIVE = 800;
 
   document.querySelectorAll('[data-tilt]').forEach(card => {
@@ -1061,12 +1570,11 @@
 
     card.addEventListener('mousemove', e => {
       const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width  - 0.5; // -0.5 → 0.5
+      const x = (e.clientX - rect.left) / rect.width  - 0.5;
       const y = (e.clientY - rect.top)  / rect.height - 0.5;
       targetY =  x * MAX_TILT * 2;
       targetX = -y * MAX_TILT * 2;
 
-      // Move gloss hotspot via CSS vars
       card.style.setProperty('--mx', `${(x + 0.5) * 100}%`);
       card.style.setProperty('--my', `${(y + 0.5) * 100}%`);
     });
@@ -1096,7 +1604,6 @@
   let mouseX = -200, mouseY = -200;
   let ringX  = -200, ringY  = -200;
 
-  // Smooth ring follows with slight lag
   function animateRing() {
     ringX += (mouseX - ringX) * 0.14;
     ringY += (mouseY - ringY) * 0.14;
@@ -1108,15 +1615,12 @@
 
   document.addEventListener('mousemove', e => {
     mouseX = e.clientX; mouseY = e.clientY;
-    // Dot snaps instantly
     dot.style.left  = mouseX + 'px';
     dot.style.top   = mouseY + 'px';
-    // Glow lags via CSS transition
     glow.style.left = mouseX + 'px';
     glow.style.top  = mouseY + 'px';
   }, { passive: true });
 
-  // Hover state
   const hoverEls = 'a, button, [onclick], .ios-app, .nav-link, .iterm-cmd-item, .ttt-cell, .proj-card-big, .ccard, .chip, .card-stack span, .btn-resume';
   document.addEventListener('mouseover', e => {
     if (e.target.closest(hoverEls)) document.body.classList.add('cursor-hover');
@@ -1125,11 +1629,9 @@
     if (e.target.closest(hoverEls)) document.body.classList.remove('cursor-hover');
   });
 
-  // Click state
   document.addEventListener('mousedown', () => document.body.classList.add('cursor-click'));
   document.addEventListener('mouseup',   () => document.body.classList.remove('cursor-click'));
 
-  // Hide when leaving window
   document.addEventListener('mouseleave', () => {
     dot.style.opacity = '0'; ring.style.opacity = '0'; glow.style.opacity = '0';
   });
@@ -1144,12 +1646,11 @@
 (function() {
   if (window.innerWidth <= 900) return;
 
-  const STRENGTH = 0.38; // how far buttons stretch toward cursor (0–1)
-  const RADIUS   = 90;   // px — how close cursor must be to activate
+  const STRENGTH = 0.38;
+  const RADIUS   = 90;
 
   document.querySelectorAll('[data-magnetic]').forEach(el => {
-    let rafId = null;
-    let tx = 0, ty = 0; // current offset
+    let tx = 0, ty = 0;
     let active = false;
 
     function onMove(e) {
@@ -1206,7 +1707,6 @@
     ripple.addEventListener('animationend', () => ripple.remove());
   }
 
-  // Apply to all current + future ripple targets
   function attachRipples() {
     document.querySelectorAll('.btn-primary, .btn-outline, .btn-resume').forEach(btn => {
       if (!btn.dataset.rippleAttached) {
@@ -1216,21 +1716,17 @@
     });
   }
   attachRipples();
-  // Re-attach after any DOM changes (e.g. sections reveal)
   new MutationObserver(attachRipples).observe(document.body, { childList: true, subtree: true });
 })();
 
 /* ═══════════════════════════════════════════════════
-   4. SCROLL-LINKED PARALLAX on background keywords
-   (handled in keywords canvas — speed multiplier by layer)
-   Also: section orbs shift vertically with scroll
+   4. SCROLL-LINKED PARALLAX
 ═══════════════════════════════════════════════════ */
 (function() {
   if (window.innerWidth <= 900) return;
   const scrollMain = document.getElementById('scrollMain');
   if (!scrollMain) return;
 
-  // Orbs move at different rates — depth illusion
   const orbs = [
     { el: null, selector: '#about .orb-cyan',      rate: 0.18 },
     { el: null, selector: '#projects .orb-purple',  rate: -0.12 },
@@ -1238,7 +1734,6 @@
     { el: null, selector: '#contact .orb-cyan',     rate: -0.15 },
   ];
 
-  // Resolve elements after DOM is ready
   function resolveOrbs() {
     orbs.forEach(o => { o.el = document.querySelector(o.selector); });
   }
@@ -1259,7 +1754,6 @@
     });
   }, { passive: true });
 
-  // Also: section eyebrows + hero name have very subtle parallax
   scrollMain.addEventListener('scroll', () => {
     requestAnimationFrame(() => {
       const st = scrollMain.scrollTop;
@@ -1270,9 +1764,33 @@
 })();
 
 /* ─────────────────────────────
+   SKILLS PANEL OPEN / CLOSE
+───────────────────────────── */
+window.openSkillsPanel = function() {
+  const panel    = document.getElementById('skillsPanel');
+  const backdrop = document.getElementById('skillsPanelBackdrop');
+  if (!panel || !backdrop) return;
+  panel.classList.add('open');
+  backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeSkillsPanel = function() {
+  const panel    = document.getElementById('skillsPanel');
+  const backdrop = document.getElementById('skillsPanelBackdrop');
+  if (!panel || !backdrop) return;
+  panel.classList.remove('open');
+  backdrop.classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') window.closeSkillsPanel();
+});
+
+/* ─────────────────────────────
    PARTICLES
 ───────────────────────────── */
-
 (function() {
   const canvas = document.getElementById('particleCanvas');
   if (!canvas) return;
@@ -1295,16 +1813,15 @@
     r: Math.random() * 1.5 + 0.4,
     vy: -(Math.random() * 0.25 + 0.07),
     vx: (Math.random() - 0.5) * 0.2,
-    baseVx: 0, baseVy: 0, // will be set below
+    baseVx: 0, baseVy: 0,
     op: Math.random() * 0.4 + 0.08,
     pp: Math.random() * Math.PI * 2,
     ps: Math.random() * 0.018 + 0.006,
     color: COLS[Math.floor(Math.random() * COLS.length)],
-    baseColor: null, // set below
-    gx: 0, gy: 0,   // gravity pull offsets
+    baseColor: null,
+    gx: 0, gy: 0,
   }));
   const pts = window._pts;
-  // Record base velocities and colors
   pts.forEach(p => {
     p.baseVx = p.vx;
     p.baseVy = p.vy;
@@ -1338,10 +1855,8 @@
       ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
       ctx.fillStyle = (p.colorOverride || p.color) + (p.op * pulse) + ')';
       ctx.fill();
-      // Apply gravity pull + base velocity
       p.x += p.vx + p.gx;
       p.y += p.vy + p.gy;
-      // Decay gravity back to 0
       p.gx *= 0.88;
       p.gy *= 0.88;
       if (p.y < -6) { p.y = H + 6; p.x = Math.random() * W; }
@@ -1355,7 +1870,6 @@
 
 /* ─────────────────────────────
    FLOATING KEYWORDS
-   DevOps / cloud words drift upward, fade in + out
 ───────────────────────────── */
 (function() {
   const canvas = document.getElementById('keywordsCanvas');
@@ -1378,10 +1892,8 @@
     'microservices','sre','observability','cncf','k8s',
   ];
 
-  // Pick a font that matches the mono theme
   const FONT = "'JetBrains Mono', monospace";
 
-  // Colour palette — cyan / purple / green matching portfolio accents
   const PALETTE = [
     'rgba(0,212,255,',
     'rgba(124,58,237,',
@@ -1395,22 +1907,21 @@
   function randColor() { return PALETTE[Math.floor(Math.random() * PALETTE.length)]; }
 
   function spawnWord(initialY) {
-    const size = Math.random() * 8 + 10; // 10–18px
+    const size = Math.random() * 8 + 10;
     return {
       text:  randWord(),
       x:     Math.random() * W,
-      y:     initialY !== undefined ? initialY : H + Math.random() * H, // start below viewport
+      y:     initialY !== undefined ? initialY : H + Math.random() * H,
       size,
-      speed: Math.random() * 0.35 + 0.12,  // very slow drift
+      speed: Math.random() * 0.35 + 0.12,
       color: randColor(),
       alpha: 0,
-      maxAlpha: Math.random() * 0.13 + 0.04, // 0.04–0.17 — very subtle
-      fadeDir: 1,  // 1=fading in, -1=fading out
+      maxAlpha: Math.random() * 0.13 + 0.04,
+      fadeDir: 1,
       fadeDone: false,
     };
   }
 
-  // Initial spread across the whole screen
   const words = Array.from({ length: COUNT }, () => spawnWord(Math.random() * H));
 
   let t = 0;
@@ -1419,34 +1930,26 @@
     t++;
 
     for (const w of words) {
-      // Fade in / hold / fade out based on vertical progress
-      const progress = 1 - (w.y / H); // 0 at bottom, 1 at top
+      const progress = 1 - (w.y / H);
 
       if (progress < 0.15) {
-        // Bottom 15% — fade in
         w.alpha = Math.min(w.maxAlpha, w.alpha + 0.002);
       } else if (progress > 0.75) {
-        // Top 25% — fade out
         w.alpha = Math.max(0, w.alpha - 0.003);
       } else {
-        // Middle — hold max
         w.alpha = Math.min(w.maxAlpha, w.alpha + 0.004);
       }
 
-      // Draw
       ctx.save();
       ctx.font = `${w.size}px ${FONT}`;
       ctx.fillStyle = w.color + w.alpha + ')';
       ctx.fillText(w.text, w.x, w.y);
       ctx.restore();
 
-      // Move upward
       w.y -= w.speed;
 
-      // Recycle when past top
       if (w.y < -30) {
         Object.assign(w, spawnWord(H + 20));
-        // randomise x fresh on recycle
         w.x = Math.random() * W;
       }
     }
@@ -1456,8 +1959,9 @@
   draw();
 })();
 
-
-
+/* ─────────────────────────────
+   PHONE 3D TILT
+───────────────────────────── */
 (function() {
   if (window.innerWidth <= 900) return;
   const wrapper = document.getElementById('phoneWrapper');
@@ -1466,7 +1970,6 @@
   let targetX = 0, targetY = 7, currentX = 0, currentY = 7;
   let isReady = false;
 
-  // Match the CSS animation end time (5.8s start + 1s duration)
   setTimeout(() => { isReady = true; }, 6900);
 
   document.addEventListener('mousemove', e => {
@@ -1745,24 +2248,19 @@ if (!isMobile) {
 }
 
 /* ═══════════════════════════════════════════════
-   3D DRAGGABLE TERMINAL  (NEW)
-   Drag to rotate on any axis — inertia on release
+   3D DRAGGABLE TERMINAL
 ═══════════════════════════════════════════════ */
 (function() {
   const wrapper = document.getElementById('terminal3dWrapper');
   const terminal = document.getElementById('terminal3d');
   if (!wrapper || !terminal) return;
 
-  // current rotation state
   let rotX = 8, rotY = -10, rotZ = -1;
-  // velocity for inertia
   let velX = 0, velY = 0;
-  // drag tracking
   let dragging = false;
   let lastX = 0, lastY = 0;
   let lastDX = 0, lastDY = 0;
 
-  // clamp ranges so it doesn't flip completely
   const MAX_X = 35, MAX_Y = 40;
 
   function applyTransform() {
@@ -1770,7 +2268,6 @@ if (!isMobile) {
   }
   applyTransform();
 
-  // Mouse events
   wrapper.addEventListener('mousedown', e => {
     dragging = true;
     lastX = e.clientX;
@@ -1798,13 +2295,11 @@ if (!isMobile) {
     if (!dragging) return;
     dragging = false;
     wrapper.style.cursor = 'grab';
-    // transfer last delta to velocity for inertia
     velX = lastDY * 0.45;
     velY = lastDX * 0.45;
     startInertia();
   });
 
-  // Touch events
   wrapper.addEventListener('touchstart', e => {
     const t = e.touches[0];
     dragging = true;
@@ -1837,7 +2332,6 @@ if (!isMobile) {
     startInertia();
   });
 
-  // Inertia + spring-back to default angle
   let inertiaId = null;
   const DEFAULT_X = 8, DEFAULT_Y = -10;
 
@@ -1845,7 +2339,6 @@ if (!isMobile) {
     if (inertiaId) cancelAnimationFrame(inertiaId);
     function step() {
       if (dragging) return;
-      // inertia decay
       velX *= 0.88;
       velY *= 0.88;
       rotX -= velX;
@@ -1853,7 +2346,6 @@ if (!isMobile) {
       rotX = Math.max(-MAX_X, Math.min(MAX_X, rotX));
       rotY = Math.max(-MAX_Y, Math.min(MAX_Y, rotY));
 
-      // spring back toward default when velocity is low
       if (Math.abs(velX) < 0.05 && Math.abs(velY) < 0.05) {
         rotX += (DEFAULT_X - rotX) * 0.04;
         rotY += (DEFAULT_Y - rotY) * 0.04;
@@ -1866,14 +2358,12 @@ if (!isMobile) {
     step();
   }
 
-  // Auto-float animation when not dragging (gentle idle bob)
   let idleT = 0;
   function idleFloat() {
     if (dragging) { idleT++; requestAnimationFrame(idleFloat); return; }
     idleT += 0.008;
     const bobX = Math.sin(idleT * 1.1) * 1.5;
     const bobY = Math.cos(idleT * 0.7) * 2;
-    // Only apply idle when velocity is near zero (not mid-inertia)
     if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) {
       terminal.style.transform = `rotateX(${rotX + bobX}deg) rotateY(${rotY + bobY}deg) rotateZ(${rotZ}deg)`;
     }
@@ -1884,15 +2374,12 @@ if (!isMobile) {
 
 /* ═══════════════════════════════════════════════
    INTERACTIVE TERMINAL
-   Commands: whoami | skills | projects | experience
-             education | contact | goals | resume | clear | help
 ═══════════════════════════════════════════════ */
 (function() {
   const output  = document.getElementById('itermOutput');
   const input   = document.getElementById('itermInput');
   if (!output || !input) return;
 
-  // ── Command database ──────────────────────────
   const COMMANDS = {
     whoami: [
       { t:'head', v:'👤  Achan Sai Pranay' },
@@ -1980,7 +2467,6 @@ if (!isMobile) {
     ],
   };
 
-  // ── Helpers ───────────────────────────────────
   function addLine(cls, html) {
     const div = document.createElement('div');
     div.className = `iterm-line ${cls}`;
@@ -1998,7 +2484,6 @@ if (!isMobile) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  // Typewriter for a single line — returns a Promise
   function typewriteLine(cls, text, speed=18) {
     return new Promise(resolve => {
       const div = addLine(cls, '');
@@ -2013,7 +2498,6 @@ if (!isMobile) {
     });
   }
 
-  // Render a batch of lines with a stagger delay
   async function renderLines(lines) {
     for (const l of lines) {
       await new Promise(r => setTimeout(r, 28));
@@ -2046,7 +2530,6 @@ if (!isMobile) {
 
     if (cmd === 'resume') {
       await renderLines(COMMANDS.resume);
-      // trigger download
       const a = document.createElement('a');
       a.href = 'resume.pdf';
       a.download = 'Achan_Sai_Pranay_Resume.pdf';
@@ -2065,14 +2548,12 @@ if (!isMobile) {
     busy = false;
   }
 
-  // Global so the clickable sidebar calls it
   window.itermRun = function(cmd) {
     input.value = '';
     runCommand(cmd);
     input.focus();
   };
 
-  // Keyboard enter
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       const val = input.value;
@@ -2081,7 +2562,6 @@ if (!isMobile) {
     }
   });
 
-  // History navigation (↑ / ↓)
   const history = [];
   let histIdx = -1;
   input.addEventListener('keydown', e => {
@@ -2091,7 +2571,7 @@ if (!isMobile) {
     if (e.key === 'ArrowDown' && histIdx > -1) histIdx--;
     input.value = histIdx >= 0 ? history[histIdx] : '';
   });
-  // patch runCommand to also track history
+
   const _orig = runCommand;
   async function runCommandTracked(raw) {
     const cmd = raw.trim();
@@ -2101,9 +2581,8 @@ if (!isMobile) {
   window.itermRun = function(cmd) { input.value = ''; runCommandTracked(cmd); input.focus(); };
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') { const v = input.value; input.value = ''; runCommandTracked(v); }
-  }, true); // capture so this runs before the earlier listener (fine — both fire)
+  }, true);
 
-  // ── Boot sequence ─────────────────────────────
   async function boot() {
     await new Promise(r => setTimeout(r, 400));
     await typewriteLine('out-line', 'Initializing achan-devops-shell v1.0.0 ...', 22);
@@ -2115,6 +2594,5 @@ if (!isMobile) {
   }
   boot();
 
-  // Focus input when clicking anywhere in the terminal
   document.querySelector('.iterm-window')?.addEventListener('click', () => input.focus());
 })();
