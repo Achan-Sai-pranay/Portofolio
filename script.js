@@ -416,55 +416,7 @@
 })();
 
 /* ═══════════════════════════════════════════════════
-   ORBITAL SKILLS SYSTEM — v3 (freeze bug fixed)
-
-   ROOT CAUSES FIXED:
-   1. showDetail/hideDetail were called synchronously inside the RAF draw()
-      loop, triggering DOM layout reads (classList.contains) and writes
-      (classList.add, style assignments) mid-frame — causing layout thrash
-      that froze the canvas animation.
-   2. hideDetail() did a classList.contains READ every frame even when nothing
-      changed, constantly forcing style resolution.
-   3. mouseleave reset prevHoveredNode to null, causing showDetail to re-fire
-      on the very next hover of the same node (double transition glitch).
-   4. cursor style was set in mousemove reading stale hoveredNode from last frame.
-
-   FIX STRATEGY:
-   - All DOM reads/writes are batched into a single deferred RAF callback
-     (_flushDetail) that runs AFTER the canvas RAF completes.
-   - draw() only does pure canvas operations + sets a pending intent flag.
-   - mouseleave no longer resets prevHoveredNode (canvas state variable);
-     it only resets mouse coords and clears pins.
-   - Cursor is set inside draw() after hit-testing, not in mousemove.
-═══════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════
-   ORBITAL SKILLS SYSTEM — v4 (hover freeze fully fixed)
-
-   ROOT CAUSES FIXED (v4):
-   1. scheduleDetailFlush compared node references with === against
-      pendingDetailNode, but pendingDetailNode was initialized as
-      `undefined` — so the FIRST hover always passed the guard,
-      but subsequent hovers on the SAME node after mouseleave
-      could stall because lastDisplayNode was never cleared properly.
-   2. The _flushDetail function's early-return when
-      lastDisplayNode === node prevented re-showing after hide,
-      because lastDisplayNode wasn't reliably nulled on hide
-      (the setTimeout in the old collapse pattern was removed but
-      the logic ghost remained).
-   3. Most critically: `scheduleDetailFlush` used strict equality
-      `node === pendingDetailNode` as a dedup guard. When draw()
-      calls it every frame with the SAME node ref, this is fine.
-      But when hoveredNode flips between null and a node rapidly
-      (edge of hit radius), the setTimeout(0) flush races with
-      the next draw() frame — the pending flag gets stuck as the
-      old value while the new intent is already different.
-      FIX: Remove the dedup guard entirely. Let _flushDetail
-      itself be the idempotency gate (check lastDisplayNode).
-      The setTimeout(0) already coalesces multiple calls per frame.
-   4. The `animateTransition` in NEW-3 (color zones) was calling
-      requestAnimationFrame in a separate loop that could interfere
-      with the particle system's `_pts` array mid-iteration on
-      some browsers. Wrapped the colorOverride write in a flag check.
+   ORBITAL SKILLS SYSTEM — v4
 ═══════════════════════════════════════════════════ */
 (function() {
   const canvas = document.getElementById('orbitalCanvas');
@@ -543,9 +495,7 @@
   let W, H, CX, CY, MAX_R;
   let hoveredNode = null;
   let pinnedNode = null;
-  // Track what's currently shown so we don't re-trigger DOM writes
   let lastDisplayNode = null;
-  // Track what we WANT to show — set by draw(), consumed by flush
   let pendingDetailNode = null;
   let detailFlushScheduled = false;
 
@@ -553,27 +503,26 @@
   let t = 0, startT = null;
   let animating = false;
 
-  // Cache DOM refs once
   const detailEl = document.getElementById('orbitalDetail');
   const elName   = document.getElementById('odName');
   const elLvl    = document.getElementById('odLevel');
   const elFill   = document.getElementById('odFill');
   const elUsed   = document.getElementById('odUsed');
 
- function resize() {
-  const rect = canvas.parentElement.getBoundingClientRect();
-  const size = Math.min(rect.width, 560); // was 520
-  const dpr  = window.devicePixelRatio || 1;
-  canvas.width  = size * dpr;
-  canvas.height = size * dpr;
-  canvas.style.width  = size + 'px';
-  canvas.style.height = size + 'px';
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.scale(dpr, dpr);
-  W = H = size;
-  CX = CY = size / 2;
-  MAX_R = size * 0.5 * 0.82; // was 0.90 — pull rings inward so they don't touch edges
-}
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const size = Math.min(rect.width, 560);
+    const dpr  = window.devicePixelRatio || 1;
+    canvas.width  = size * dpr;
+    canvas.height = size * dpr;
+    canvas.style.width  = size + 'px';
+    canvas.style.height = size + 'px';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    W = H = size;
+    CX = CY = size / 2;
+    MAX_R = size * 0.5 * 0.82;
+  }
 
   function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
@@ -593,12 +542,7 @@
     return 'Learning';
   }
 
-  /* ─────────────────────────────────────────────────
-     DETAIL PANEL — fully decoupled from canvas RAF
-  ───────────────────────────────────────────────── */
   function requestDetailUpdate(node) {
-    // Always update the pending target. No dedup guard here —
-    // let _flushDetail handle idempotency via lastDisplayNode.
     pendingDetailNode = node;
     if (!detailFlushScheduled) {
       detailFlushScheduled = true;
@@ -612,7 +556,6 @@
 
     const node = pendingDetailNode;
 
-    // HIDE case
     if (!node) {
       if (lastDisplayNode !== null) {
         detailEl.classList.remove('show');
@@ -621,7 +564,6 @@
       return;
     }
 
-    // SHOW case — skip if already showing this exact node
     if (lastDisplayNode === node) return;
     lastDisplayNode = node;
 
@@ -633,7 +575,6 @@
     elFill.style.boxShadow  = `0 0 10px rgba(${r},${g},${b},0.6)`;
     elFill.style.width = '0%';
     detailEl.classList.add('show');
-    // Trigger bar animation on next paint
     requestAnimationFrame(() => {
       if (lastDisplayNode === node) {
         elFill.style.width = (node.skill.pct * 100) + '%';
@@ -641,9 +582,6 @@
     });
   }
 
-  /* ─────────────────────────────────────────────────
-     DRAW LOOP — pure canvas, zero DOM reads/writes
-  ───────────────────────────────────────────────── */
   function draw(ts) {
     if (!animating) return;
     if (!startT) startT = ts;
@@ -653,7 +591,6 @@
     ctx.save();
     ctx.clearRect(0, 0, W, H);
 
-    // Deep glow
     const bg = ctx.createRadialGradient(CX, CY, 0, CX, CY, MAX_R * 1.1);
     bg.addColorStop(0,   'rgba(0,212,255,0.04)');
     bg.addColorStop(0.5, 'rgba(7,13,26,0)');
@@ -661,7 +598,6 @@
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
-    // Rings
     RINGS.forEach((ring, ri) => {
       const r = ring.radius * MAX_R * 2;
 
@@ -710,7 +646,6 @@
       ctx.fillText(ring.label, lx, ly);
     });
 
-    // Nodes — hit-test resets each frame
     hoveredNode = null;
 
     nodes.forEach(node => {
@@ -725,7 +660,6 @@
       node.prevY.push(node.y);
       if (node.prevX.length > 18) { node.prevX.shift(); node.prevY.shift(); }
 
-      // Hit test
       const dx = mouseX - node.x, dy = mouseY - node.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
       node.hovered = dist < node.r + 16;
@@ -733,7 +667,6 @@
 
       const isActive = node.hovered || node === pinnedNode;
 
-      // Comet tail
       if (node.prevX.length > 2) {
         for (let i = 1; i < node.prevX.length; i++) {
           const frac = i / node.prevX.length;
@@ -746,7 +679,6 @@
         }
       }
 
-      // Outer glow
       const glowR = node.r * (isActive ? 4.5 : 2.8);
       const grd = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowR);
       grd.addColorStop(0, c(node.color, isActive ? 0.4 : 0.15));
@@ -756,7 +688,6 @@
       ctx.fillStyle = grd;
       ctx.fill();
 
-      // Node body
       const drawR = node.r * (isActive ? 1.4 : 1) * node.entryProgress;
       ctx.beginPath();
       ctx.arc(node.x, node.y, drawR, 0, Math.PI * 2);
@@ -778,7 +709,6 @@
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // Progress arc
       const pArcLen = node.skill.pct * Math.PI * 2;
       ctx.beginPath();
       ctx.arc(node.x, node.y, drawR + 4, -Math.PI/2, -Math.PI/2 + pArcLen);
@@ -786,7 +716,6 @@
       ctx.lineWidth = isActive ? 2 : 1.2;
       ctx.stroke();
 
-      // Label
       const ldx = node.x - CX, ldy = node.y - CY;
       const lLen = Math.sqrt(ldx*ldx + ldy*ldy) || 1;
       const lx3 = node.x + (ldx/lLen) * (drawR + 13);
@@ -798,7 +727,6 @@
       ctx.textBaseline = ly3 < CY ? 'bottom' : 'top';
       ctx.fillText(node.skill.name, lx3, ly3);
 
-      // Micro burst on hover entry
       if (node.hovered && !node.wasHovered) {
         for (let i = 0; i < 8; i++) {
           const a = Math.random() * Math.PI * 2;
@@ -808,7 +736,6 @@
       }
       node.wasHovered = node.hovered;
 
-      // Update bursts
       for (let bi = node.bursts.length - 1; bi >= 0; bi--) {
         const b = node.bursts[bi];
         b.x += b.vx; b.y += b.vy; b.life -= 0.06; b.vx *= 0.92; b.vy *= 0.92;
@@ -823,7 +750,6 @@
       }
     });
 
-    // Connection beam
     const activeNode = hoveredNode || pinnedNode;
     if (activeNode) {
       const [r2,g2,b2] = activeNode.color;
@@ -855,7 +781,6 @@
       });
     }
 
-    // Core
     const pulse = 0.5 + Math.sin(t * 1.6) * 0.5;
     const coreR = 28;
 
@@ -910,19 +835,13 @@
     ctx.textBaseline = 'middle';
     ctx.fillText('ASP', CX, CY);
 
-    // Cursor update — safe, doesn't trigger layout
     canvas.style.cursor = hoveredNode ? 'pointer' : 'default';
-
-    // Schedule detail panel update OUTSIDE this frame
     requestDetailUpdate(hoveredNode || pinnedNode || null);
 
     ctx.restore();
     requestAnimationFrame(draw);
   }
 
-  /* ─────────────────────────────────────────────────
-     EVENTS
-  ───────────────────────────────────────────────── */
   canvas.addEventListener('mousemove', e => {
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
@@ -933,7 +852,6 @@
   canvas.addEventListener('mouseleave', () => {
     mouseX = -9999; mouseY = -9999;
     pinnedNode = null;
-    // Don't touch lastDisplayNode — let the next draw() + flush handle it
     requestDetailUpdate(null);
   });
 
@@ -946,9 +864,6 @@
     requestDetailUpdate(hoveredNode || pinnedNode || null);
   });
 
-  /* ─────────────────────────────────────────────────
-     START
-  ───────────────────────────────────────────────── */
   const isMobile = window.innerWidth <= 900;
   const scrollRoot = isMobile ? null : document.getElementById('scrollMain');
   const obs = new IntersectionObserver(entries => {
@@ -967,7 +882,7 @@
 })();
 
 /* ═══════════════════════════════════════════════════
-   F. MATRIX RAIN COLUMN (right edge, DevOps chars)
+   F. MATRIX RAIN COLUMN
 ═══════════════════════════════════════════════════ */
 (function() {
   const canvas = document.getElementById('matrixCanvas');
@@ -1014,7 +929,7 @@
 })();
 
 /* ═══════════════════════════════════════════════════
-   G. CONSTELLATION CONNECT (particle hover lines)
+   G. CONSTELLATION CONNECT
 ═══════════════════════════════════════════════════ */
 (function() {
   if (window.innerWidth <= 900) return;
@@ -1085,7 +1000,7 @@
 })();
 
 /* ═══════════════════════════════════════════════════
-   H. SPLIT CHARACTER ENTRANCE — name-top
+   H. SPLIT CHARACTER ENTRANCE
 ═══════════════════════════════════════════════════ */
 (function() {
   document.querySelectorAll('.split-chars').forEach(el => {
@@ -1102,7 +1017,7 @@
 })();
 
 /* ═══════════════════════════════════════════════════
-   I. SCRAMBLE TEXT on section eyebrows
+   I. SCRAMBLE TEXT
 ═══════════════════════════════════════════════════ */
 (function() {
   const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#abcdefghijklmnopqrstuvwxyz01';
@@ -1195,7 +1110,7 @@
 })();
 
 /* ═══════════════════════════════════════════════════
-   L. NOTIFICATION BADGE — mail icon pulse every 30s
+   L. NOTIFICATION BADGE
 ═══════════════════════════════════════════════════ */
 (function() {
   const badge = document.getElementById('mailBadge');
@@ -1209,7 +1124,7 @@
 })();
 
 /* ═══════════════════════════════════════════════════
-   M. SCREEN REFLECTION SWEEP — every 10s
+   M. SCREEN REFLECTION SWEEP
 ═══════════════════════════════════════════════════ */
 (function() {
   const ref = document.getElementById('screenReflection');
@@ -1456,7 +1371,7 @@
 })();
 
 /* ═══════════════════════════════════════════════════
-   C. GLITCH FLICKER — hero name
+   C. GLITCH FLICKER
 ═══════════════════════════════════════════════════ */
 (function() {
   const el = document.getElementById('glitchName');
@@ -1592,6 +1507,8 @@
 
 /* ═══════════════════════════════════════════════════
    1. CUSTOM CURSOR + GLOW TRAIL
+   FIX: cursor ring getting stuck — snap ring to off-screen
+        on mouseleave so it doesn't linger visibly
 ═══════════════════════════════════════════════════ */
 (function() {
   if (window.innerWidth <= 900) return;
@@ -1603,10 +1520,25 @@
 
   let mouseX = -200, mouseY = -200;
   let ringX  = -200, ringY  = -200;
+  let visible = false;
+
+  function applyPositions() {
+    dot.style.left  = mouseX + 'px';
+    dot.style.top   = mouseY + 'px';
+    glow.style.left = mouseX + 'px';
+    glow.style.top  = mouseY + 'px';
+  }
 
   function animateRing() {
-    ringX += (mouseX - ringX) * 0.14;
-    ringY += (mouseY - ringY) * 0.14;
+    // Only lerp when visible — prevents the ring lagging far behind
+    if (visible) {
+      ringX += (mouseX - ringX) * 0.14;
+      ringY += (mouseY - ringY) * 0.14;
+    } else {
+      // Snap immediately when not visible so it never appears "stuck"
+      ringX = mouseX;
+      ringY = mouseY;
+    }
     ring.style.left = ringX + 'px';
     ring.style.top  = ringY + 'px';
     requestAnimationFrame(animateRing);
@@ -1614,11 +1546,9 @@
   animateRing();
 
   document.addEventListener('mousemove', e => {
-    mouseX = e.clientX; mouseY = e.clientY;
-    dot.style.left  = mouseX + 'px';
-    dot.style.top   = mouseY + 'px';
-    glow.style.left = mouseX + 'px';
-    glow.style.top  = mouseY + 'px';
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    applyPositions();
   }, { passive: true });
 
   const hoverEls = 'a, button, [onclick], .ios-app, .nav-link, .iterm-cmd-item, .ttt-cell, .proj-card-big, .ccard, .chip, .card-stack span, .btn-resume';
@@ -1632,11 +1562,24 @@
   document.addEventListener('mousedown', () => document.body.classList.add('cursor-click'));
   document.addEventListener('mouseup',   () => document.body.classList.remove('cursor-click'));
 
+  // FIX: on mouseleave, immediately snap ring to off-screen position
   document.addEventListener('mouseleave', () => {
-    dot.style.opacity = '0'; ring.style.opacity = '0'; glow.style.opacity = '0';
+    visible = false;
+    mouseX = -200; mouseY = -200;
+    ringX  = -200; ringY  = -200;
+    dot.style.opacity  = '0';
+    ring.style.opacity = '0';
+    glow.style.opacity = '0';
+    // Force immediate position update so ring doesn't ghost on re-enter
+    ring.style.left = '-200px';
+    ring.style.top  = '-200px';
   });
+
   document.addEventListener('mouseenter', () => {
-    dot.style.opacity = '1'; ring.style.opacity = '1'; glow.style.opacity = '1';
+    visible = true;
+    dot.style.opacity  = '1';
+    ring.style.opacity = '1';
+    glow.style.opacity = '1';
   });
 })();
 
@@ -2249,13 +2192,18 @@ if (!isMobile) {
 
 /* ═══════════════════════════════════════════════
    3D DRAGGABLE TERMINAL
+   FIX: terminal not returning to default state —
+        inertia now always nudges toward default
+        once velocity is low, regardless of threshold.
+        idleFloat is paused during active inertia.
 ═══════════════════════════════════════════════ */
 (function() {
   const wrapper = document.getElementById('terminal3dWrapper');
   const terminal = document.getElementById('terminal3d');
   if (!wrapper || !terminal) return;
 
-  let rotX = 8, rotY = -10, rotZ = -1;
+  const DEFAULT_X = 8, DEFAULT_Y = -10, DEFAULT_Z = -1;
+  let rotX = DEFAULT_X, rotY = DEFAULT_Y, rotZ = DEFAULT_Z;
   let velX = 0, velY = 0;
   let dragging = false;
   let lastX = 0, lastY = 0;
@@ -2295,6 +2243,7 @@ if (!isMobile) {
     if (!dragging) return;
     dragging = false;
     wrapper.style.cursor = 'grab';
+    // Use last delta as initial velocity
     velX = lastDY * 0.45;
     velY = lastDX * 0.45;
     startInertia();
@@ -2333,40 +2282,69 @@ if (!isMobile) {
   });
 
   let inertiaId = null;
-  const DEFAULT_X = 8, DEFAULT_Y = -10;
+  let inertiaActive = false;
 
   function startInertia() {
     if (inertiaId) cancelAnimationFrame(inertiaId);
+    inertiaActive = true;
+
     function step() {
-      if (dragging) return;
-      velX *= 0.88;
-      velY *= 0.88;
+      if (dragging) {
+        inertiaActive = false;
+        return;
+      }
+
+      // Apply velocity
       rotX -= velX;
       rotY += velY;
       rotX = Math.max(-MAX_X, Math.min(MAX_X, rotX));
       rotY = Math.max(-MAX_Y, Math.min(MAX_Y, rotY));
 
-      if (Math.abs(velX) < 0.05 && Math.abs(velY) < 0.05) {
-        rotX += (DEFAULT_X - rotX) * 0.04;
-        rotY += (DEFAULT_Y - rotY) * 0.04;
-        rotZ += (-1 - rotZ) * 0.04;
-      }
+      // Decay velocity
+      velX *= 0.88;
+      velY *= 0.88;
+
+      // Always nudge toward default — works at any velocity level
+      // This guarantees return to default even after slow drags
+      const snapStrength = (Math.abs(velX) < 0.5 && Math.abs(velY) < 0.5) ? 0.04 : 0.008;
+      rotX += (DEFAULT_X - rotX) * snapStrength;
+      rotY += (DEFAULT_Y - rotY) * snapStrength;
+      rotZ += (DEFAULT_Z - rotZ) * snapStrength;
 
       applyTransform();
+
+      // Stop inertia loop once very close to default and velocity is negligible
+      const atDefault = Math.abs(rotX - DEFAULT_X) < 0.08
+                     && Math.abs(rotY - DEFAULT_Y) < 0.08
+                     && Math.abs(rotZ - DEFAULT_Z) < 0.02
+                     && Math.abs(velX) < 0.02
+                     && Math.abs(velY) < 0.02;
+
+      if (atDefault) {
+        rotX = DEFAULT_X; rotY = DEFAULT_Y; rotZ = DEFAULT_Z;
+        velX = 0; velY = 0;
+        applyTransform();
+        inertiaActive = false;
+        inertiaId = null;
+        return;
+      }
+
       inertiaId = requestAnimationFrame(step);
     }
     step();
   }
 
+  // Idle float — only runs when inertia is not active and not dragging
   let idleT = 0;
   function idleFloat() {
-    if (dragging) { idleT++; requestAnimationFrame(idleFloat); return; }
     idleT += 0.008;
-    const bobX = Math.sin(idleT * 1.1) * 1.5;
-    const bobY = Math.cos(idleT * 0.7) * 2;
-    if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) {
-      terminal.style.transform = `rotateX(${rotX + bobX}deg) rotateY(${rotY + bobY}deg) rotateZ(${rotZ}deg)`;
+
+    if (!dragging && !inertiaActive) {
+      const bobX = Math.sin(idleT * 1.1) * 1.5;
+      const bobY = Math.cos(idleT * 0.7) * 2;
+      terminal.style.transform = `rotateX(${DEFAULT_X + bobX}deg) rotateY(${DEFAULT_Y + bobY}deg) rotateZ(${DEFAULT_Z}deg)`;
     }
+
     requestAnimationFrame(idleFloat);
   }
   idleFloat();
@@ -2414,7 +2392,7 @@ if (!isMobile) {
       { t:'table',v:'K8s Microservices       ✓ Done   Kubernetes · Docker · Helm' },
       { t:'table',v:'Automated CI/CD         ✓ Done   GitHub Actions · Docker' },
       { t:'sp' },
-      { t:'out',  v:'→  github.com/achansaipranay' },
+      { t:'out',  v:'→  github.com/Achan-Sai-pranay' },
     ],
     experience: [
       { t:'head', v:'💼  Experience' },
@@ -2440,8 +2418,8 @@ if (!isMobile) {
     contact: [
       { t:'head', v:'📬  Contact' },
       { t:'key',  v:'Email    ' },{ t:'val', v:'achansaipranay3@gmail.com' },
-      { t:'key',  v:'GitHub   ' },{ t:'val', v:'github.com/achansaipranay' },
-      { t:'key',  v:'LinkedIn ' },{ t:'val', v:'linkedin.com/in/achansaipranay' },
+      { t:'key',  v:'GitHub   ' },{ t:'val', v:'github.com/Achan-Sai-pranay' },
+      { t:'key',  v:'LinkedIn ' },{ t:'val', v:'linkedin.com/in/achan-sai-pranay-00528239b' },
       { t:'key',  v:'Phone    ' },{ t:'val', v:'+91-8179154009' },
       { t:'key',  v:'Location ' },{ t:'val', v:'Hyderabad, India' },
       { t:'sp' },
