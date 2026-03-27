@@ -1,0 +1,494 @@
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE.CSS  —  Drop-in patch for Achan Sai Pranay's portfolio
+   Add  <link rel="stylesheet" href="responsive.css">  AFTER style.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────
+   GLOBAL BASE FIXES
+───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+img, svg, canvas {
+  max-width: 100%;
+}
+
+/* ─────────────────────────────────────────────
+   LARGE DESKTOP  (≥ 1400px) — just a width cap
+───────────────────────────────────────────── */
+@media (min-width: 1400px) {
+  .section-inner {
+    padding-left: 72px;
+    padding-right: 72px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   MEDIUM DESKTOP  (901px – 1200px)
+───────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .phone-slot { width: 36%; }
+
+  @keyframes phoneToSlot {
+    from {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) rotateY(0deg);
+    }
+    to {
+      position: fixed;
+      top: 50%; left: 18%;
+      transform: translate(-50%, -50%) rotateY(7deg);
+    }
+  }
+
+  .top-nav { padding: 0 32px; }
+  .section-inner { padding: 50px 36px; }
+
+  .orbital-layout {
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+  }
+
+  .projects-grid { gap: 14px; }
+
+  .name-main {
+    font-size: clamp(56px, 7vw, 90px);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   TABLET  (641px – 900px)
+───────────────────────────────────────────── */
+@media (max-width: 900px) {
+
+  /* ── Reset page flow ── */
+  html, body {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* ── Scene ── */
+  .scene {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+    perspective: none;
+  }
+
+  /* ── Layout: stack vertically ── */
+  .portfolio-container {
+    flex-direction: column;
+    height: auto;
+    align-items: center;
+    overflow: visible;
+  }
+
+  /* ── Phone slot — centered row ── */
+  .phone-slot {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 20px 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Phone wrapper — static, no JS tilt or CSS animation ── */
+  .phone-wrapper {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    animation: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Phone frame ── */
+  .phone-frame {
+    width: 248px;
+    height: 508px;
+    border-radius: 46px;
+    animation: phoneShadowPulse 4s ease-in-out infinite; /* keep glow */
+  }
+
+  /* ── Content area ── */
+  .content-area {
+    position: relative !important;
+    width: 100%;
+    height: auto;
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+    overflow: visible;
+    background: transparent;
+  }
+  .content-area::before,
+  .content-area::after { display: none; }
+
+  /* ── Nav ── */
+  .top-nav {
+    position: sticky;
+    padding: 0 16px;
+    height: 54px;
+    gap: 12px;
+  }
+  .nav-logo { font-size: 11px; }
+  .nav-links { gap: 14px; }
+  .nav-link  { font-size: 11px; }
+  .btn-resume { display: none; }
+
+  /* ── Scroll main ── */
+  .scroll-main {
+    overflow: visible;
+    height: auto;
+    will-change: auto;
+  }
+
+  /* ── Sections ── */
+  .scroll-section {
+    min-height: auto;
+    contain: none;
+    display: block;
+    border-bottom: 1px solid rgba(0,212,255,0.06);
+  }
+  .section-inner { padding: 40px 20px 52px; }
+
+  /* ── Orbs ── */
+  .section-orb  { opacity: 0.06; }
+  .orb-cyan     { width: 200px; height: 200px; }
+  .orb-purple   { width: 180px; height: 180px; }
+  .orb-green    { width: 160px; height: 160px; }
+
+  /* ── Section watermarks — smaller ── */
+  .section-watermark {
+    font-size: clamp(80px, 18vw, 140px);
+    right: -0.02em;
+  }
+
+  /* ── Hero ── */
+  .name-top  { font-size: 13px; letter-spacing: 5px; }
+  .name-main { font-size: clamp(52px, 14vw, 80px); letter-spacing: -2px; }
+  .hero-role { font-size: 15px; }
+  .hero-bio  { font-size: 13px; max-width: 100%; }
+  .hero-badges { gap: 7px; }
+  .hbadge { font-size: 10px; padding: 5px 11px; }
+  .hero-ctas { flex-wrap: wrap; gap: 10px; }
+  .btn-primary, .btn-outline { font-size: 12px; padding: 11px 24px; }
+
+  /* ── Stats bar — wrap gracefully ── */
+  .stats-bar {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: 16px 20px;
+    scrollbar-width: none;
+  }
+  .stats-bar::-webkit-scrollbar { display: none; }
+  .stat-item { padding: 0 18px; flex-shrink: 0; }
+  .stat-num  { font-size: 22px; }
+  .stat-div  { height: 28px; flex-shrink: 0; }
+
+  /* ── Projects ── */
+  .projects-grid { grid-template-columns: 1fr; gap: 14px; }
+  .proj-card-big.featured-card { grid-column: span 1; }
+  .proj-card-big { padding: 18px; }
+  .proj-card-big h3 { font-size: 17px; }
+  .proj-card-big p  { font-size: 12px; }
+
+  /* ── Orbital / Skills ── */
+  .orbital-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .orbital-stage {
+    display: flex;
+    justify-content: center;
+  }
+  #orbitalCanvas {
+    max-width: 340px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+  .orbital-sidebar { order: 2; }
+  .orb-legend, .orb-learning-block, .orb-tools-block {
+    border-radius: 12px;
+  }
+  .orb-tools-chips { gap: 5px; }
+
+  /* ── Interactive Terminal layout ── */
+  .iterm-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .iterm-help-panel {
+    position: relative;
+    top: auto;
+    border-radius: 12px;
+  }
+  /* Show commands as a wrapping chip row instead of a column list */
+  .iterm-cmd-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+  .iterm-cmd-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 7px 12px;
+    border-radius: 10px;
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.15);
+  }
+  .iterm-cmd-desc { display: none; } /* too cluttered on mobile */
+  .iterm-window { min-height: 320px; }
+
+  /* ── Contact ── */
+  .contact-cards-grid { grid-template-columns: 1fr; gap: 12px; }
+  .contact-hero h2 { font-size: clamp(28px, 8vw, 44px); }
+  .contact-hero p  { font-size: 13px; }
+  .ccard { padding: 16px 14px; }
+  .ccard-icon { width: 40px; height: 40px; font-size: 18px; }
+  .ccard-val { font-size: 12px; word-break: break-all; }
+
+  /* ── 3D terminal — simplified on mobile ── */
+  .terminal-3d-wrapper {
+    perspective: 500px;
+    cursor: default;
+  }
+  .terminal-3d {
+    transform: none !important; /* disable 3D on small screens */
+    filter: none;
+  }
+  .terminal-3d::before,
+  .terminal-3d::after { display: none; }
+  .term3d-body { padding: 12px 14px 16px; }
+  .term3d-line { font-size: 11px; }
+
+  /* ── Skills panel — full width on mobile ── */
+  .skills-panel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(0,212,255,0.15);
+    top: auto;
+    bottom: 0;
+    height: 88svh;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+    transition: transform .45s cubic-bezier(.32,1.08,.68,1);
+  }
+  .skills-panel.open {
+    transform: translateY(0);
+  }
+  .sp-header { padding: 18px 20px 14px; }
+  .sp-body   { padding: 16px 20px 28px; }
+  .sp-learning-grid { grid-template-columns: 1fr 1fr; }
+
+  /* ── Cursor — disable on touch devices ── */
+  body, a, button, [onclick], input, textarea,
+  .ios-app, .nav-link, .btn-resume, .iterm-cmd-item,
+  .ttt-cell, .aw-back, .proj-card-big, .ccard,
+  .chip, .card-stack span, .pdot {
+    cursor: auto !important;
+  }
+  #cursor-dot, #cursor-ring, #cursor-glow { display: none !important; }
+
+  /* ── Progress dots — hide on mobile ── */
+  .progress-dots { display: none; }
+
+  /* ── Scroll progress bar — hide ── */
+  .scroll-progress { display: none; }
+
+  /* ── Reveal items — show immediately ── */
+  .reveal-item,
+  .reveal-card {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* ── Intersection observer reveal — instant on mobile ── */
+  .reveal-item.visible,
+  .reveal-card.visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   PHONE  (≤ 640px)
+───────────────────────────────────────────── */
+@media (max-width: 640px) {
+
+  .phone-frame {
+    width: 228px;
+    height: 468px;
+    border-radius: 42px;
+  }
+
+  .section-inner { padding: 32px 16px 44px; }
+
+  .top-nav { padding: 0 12px; height: 50px; }
+  .nav-links { gap: 10px; }
+  .nav-link  { font-size: 10px; }
+
+  .name-top  { font-size: 11px; letter-spacing: 4px; }
+  .name-main { font-size: clamp(44px, 16vw, 68px); }
+
+  .hero-badges { gap: 6px; }
+  .hbadge { font-size: 10px; padding: 4px 10px; }
+
+  .btn-primary, .btn-outline { font-size: 12px; padding: 10px 20px; border-radius: 6px; }
+
+  .stats-bar { padding: 14px 16px; }
+  .stat-item { padding: 0 14px; }
+  .stat-num  { font-size: 20px; }
+  .stat-label { font-size: 9px; }
+
+  .proj-card-big h3 { font-size: 16px; }
+  .proj-card-big p  { font-size: 12px; }
+
+  #orbitalCanvas { max-width: 300px; }
+
+  .iterm-window { min-height: 280px; }
+  .iterm-input  { font-size: 12px; }
+
+  .contact-hero h2 { font-size: clamp(26px, 9vw, 38px); }
+
+  .sp-learning-grid { grid-template-columns: 1fr; }
+  .sp-header { padding: 16px; }
+  .sp-title  { font-size: 18px; }
+
+  /* Terminal 3D — plain box on very small screens */
+  .term3d-body { padding: 10px 12px 14px; }
+  .term3d-line { font-size: 10.5px; padding: 2px 0; }
+}
+
+/* ─────────────────────────────────────────────
+   VERY SMALL PHONES  (≤ 380px)
+───────────────────────────────────────────── */
+@media (max-width: 380px) {
+
+  .phone-frame {
+    width: 210px;
+    height: 432px;
+    border-radius: 38px;
+  }
+
+  .name-main { font-size: 42px; }
+
+  .hero-ctas { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .btn-primary, .btn-outline { width: 100%; text-align: center; }
+
+  .stats-bar { padding: 12px; }
+  .stat-item { padding: 0 10px; }
+  .stat-num  { font-size: 18px; }
+
+  .iterm-cmd-item { padding: 6px 10px; }
+  .iterm-cmd-name { font-size: 11px; }
+}
+
+/* ─────────────────────────────────────────────
+   LANDSCAPE PHONE  (short + wide)
+───────────────────────────────────────────── */
+@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+
+  .phone-slot { padding: 16px 20px 8px; }
+
+  .phone-frame {
+    width: 200px;
+    height: 410px;
+  }
+
+  .section-inner { padding: 24px 16px 36px; }
+
+  .name-main { font-size: clamp(38px, 10vw, 56px); }
+  .hero-bio  { display: none; } /* save space on landscape */
+}
+
+/* ─────────────────────────────────────────────
+   APP WINDOWS — responsive phone interiors
+───────────────────────────────────────────── */
+@media (max-width: 260px) {
+  /* Catch-all for very tiny phone frame renders */
+  .ios-label { font-size: 8px; }
+  .ios-icon  { width: 44px; height: 44px; }
+  .dock-app .ios-icon { width: 40px; height: 40px; }
+}
+
+/* ─────────────────────────────────────────────
+   PRINT STYLES
+───────────────────────────────────────────── */
+@media print {
+  .phone-slot,
+  #cursor-dot, #cursor-ring, #cursor-glow,
+  #particleCanvas, #keywordsCanvas, #auroraCanvas, #matrixCanvas,
+  .fog-layer, .progress-dots, .scroll-progress,
+  .skills-panel, .skills-panel-backdrop,
+  .konami-overlay {
+    display: none !important;
+  }
+
+  .content-area {
+    opacity: 1 !important;
+    width: 100% !important;
+  }
+
+  .portfolio-container { display: block; }
+  .scroll-main { overflow: visible; height: auto; }
+  .scroll-section { min-height: auto; page-break-inside: avoid; }
+}
+
+/* ─────────────────────────────────────────────
+   SAFE AREA INSETS  (notch / home indicator)
+───────────────────────────────────────────── */
+@supports (padding: max(0px)) {
+  .top-nav {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .section-inner {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .skills-panel {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ─────────────────────────────────────────────
+   REDUCED MOTION  (accessibility)
+───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .boot-screen,
+  .lock-screen,
+  .home-screen,
+  .phone-wrapper,
+  .content-area {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
